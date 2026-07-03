@@ -8,3 +8,5 @@ bin/
 *.test
 *.out
 vendor/
+backend/.gocache/
+frontend/tsconfig.tsbuildinfo

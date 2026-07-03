@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -51,10 +52,6 @@ func (h *Handler) CreateRecord(c *gin.Context) {
 
 	switch input.RecordType {
 	case "string":
-		if input.Racket == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "racket is required for string type"})
-			return
-		}
 		if input.Price != 200 && input.Price != 300 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "price must be 200 or 300 for string type"})
 			return
@@ -128,10 +125,6 @@ func (h *Handler) UpdateRecord(c *gin.Context) {
 
 	switch input.RecordType {
 	case "string":
-		if input.Racket == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "racket is required for string type"})
-			return
-		}
 		if input.Price != 200 && input.Price != 300 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "price must be 200 or 300 for string type"})
 			return
@@ -444,4 +437,79 @@ func (h *Handler) ExportRecordsExcel(c *gin.Context) {
 	c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
 	c.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", buf.Bytes())
+}
+
+// GET /api/records/copy-list?start=&end=
+func (h *Handler) CopyJobsList(c *gin.Context) {
+	userID := c.GetString("userID")
+	start := c.Query("start")
+	end := c.Query("end")
+
+	if start == "" || end == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "start and end date are required"})
+		return
+	}
+
+	q := h.db.Where("user_id = ? AND date BETWEEN ? AND ?", userID, start, end).
+		Order("date ASC, seq ASC")
+
+	var records []model.Record
+	if err := q.Find(&records).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query records"})
+		return
+	}
+
+	type group struct {
+		dateKey string
+		items   []string
+	}
+	var groups []group
+
+	for _, rec := range records {
+		day := rec.Date.Day()
+		month := int(rec.Date.Month())
+		dateKey := fmt.Sprintf("%02d/%02d", day, month)
+
+		var existingIdx = -1
+		for idx, g := range groups {
+			if g.dateKey == dateKey {
+				existingIdx = idx
+				break
+			}
+		}
+
+		if existingIdx == -1 {
+			groups = append(groups, group{dateKey: dateKey, items: []string{}})
+			existingIdx = len(groups) - 1
+		}
+
+		name := ""
+		if rec.RecordType == "string" || rec.RecordType == "" {
+			if rec.String2 != "" {
+				name = fmt.Sprintf("%s %s", rec.String1, rec.String2)
+			} else {
+				name = rec.String1
+			}
+			// Replace slashes with spaces and collapse whitespace
+			name = strings.ReplaceAll(name, "/", " ")
+			name = strings.Join(strings.Fields(name), " ")
+		} else {
+			name = rec.ActivityName
+		}
+
+		if rec.Note != "" {
+			name = fmt.Sprintf("%s(%s)", name, rec.Note)
+		}
+
+		groups[existingIdx].items = append(groups[existingIdx].items, name)
+	}
+
+	var textParts []string
+	for _, g := range groups {
+		groupText := g.dateKey + "\n" + strings.Join(g.items, "\n")
+		textParts = append(textParts, groupText)
+	}
+	finalText := strings.Join(textParts, "\n")
+
+	c.JSON(http.StatusOK, gin.H{"text": finalText})
 }

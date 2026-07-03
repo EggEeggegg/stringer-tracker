@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { Record } from "@/types";
 import { fmtDate } from "@/lib/utils";
@@ -48,10 +48,6 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
     setError("");
 
     if (recordType === "string") {
-      if (!form.racket.trim()) {
-        setError("กรุณากรอกชื่อไม้");
-        return;
-      }
       await onSubmit({
         record_type: "string",
         racket: form.racket,
@@ -62,42 +58,42 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
         activity_name: "",
         note: form.note,
       });
-    } else {
-      if (!form.activity_name.trim()) {
-        setError("กรุณากรอกชื่อกิจกรรม");
-        return;
-      }
-      const parsedPrice = parseInt(form.otherPrice, 10);
-      if (!form.otherPrice || isNaN(parsedPrice) || parsedPrice <= 0) {
-        setError("กรุณากรอกราคาให้ถูกต้อง (ตัวเลขมากกว่า 0)");
-        return;
-      }
-      await onSubmit({
-        record_type: "other",
-        racket: "",
-        string1: "",
-        string2: "",
-        price: parsedPrice,
-        is_new_racket: false,
-        activity_name: form.activity_name,
-        note: form.note,
-      });
+      return;
     }
+
+    if (!form.activity_name.trim()) {
+      setError("กรุณากรอกชื่อกิจกรรม");
+      return;
+    }
+
+    const parsedPrice = parseInt(form.otherPrice, 10);
+    if (!form.otherPrice || Number.isNaN(parsedPrice) || parsedPrice <= 0) {
+      setError("กรุณากรอกราคาให้ถูกต้อง (ตัวเลขมากกว่า 0)");
+      return;
+    }
+
+    await onSubmit({
+      record_type: "other",
+      racket: "",
+      string1: "",
+      string2: "",
+      price: parsedPrice,
+      is_new_racket: false,
+      activity_name: form.activity_name,
+      note: form.note,
+    });
   };
 
   return (
     <div className="overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        {/* Handle bar */}
         <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mb-4" />
 
-        {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-base">{isEdit ? "✏️ แก้ไข" : "➕ เพิ่มรายการ"}</h3>
+          <h3 className="font-bold text-base">{isEdit ? "แก้ไขรายการ" : "เพิ่มรายการ"}</h3>
           <div className="text-xs text-[#64748b]">{fmtDate(date)}</div>
         </div>
 
-        {/* Type toggle — hide if editing (type is fixed) */}
         {!isEdit && (
           <div
             className="flex rounded-[10px] p-1 mb-4"
@@ -105,7 +101,10 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
           >
             <button
               type="button"
-              onClick={() => { setRecordType("string"); setError(""); }}
+              onClick={() => {
+                setRecordType("string");
+                setError("");
+              }}
               className="flex-1 py-[8px] rounded-[8px] text-xs font-semibold transition-all duration-200"
               style={
                 recordType === "string"
@@ -113,11 +112,14 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
                   : { color: "#475569" }
               }
             >
-              🎾 ขึ้นเอ็น
+              ขึ้นเอ็น
             </button>
             <button
               type="button"
-              onClick={() => { setRecordType("other"); setError(""); }}
+              onClick={() => {
+                setRecordType("other");
+                setError("");
+              }}
               className="flex-1 py-[8px] rounded-[8px] text-xs font-semibold transition-all duration-200"
               style={
                 recordType === "other"
@@ -125,14 +127,14 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
                   : { color: "#475569" }
               }
             >
-              💰 รายได้อื่นๆ
+              รายได้อื่นๆ
             </button>
           </div>
         )}
 
         {isEdit && (
           <div className="bg-[rgba(245,158,11,0.1)] border border-[rgba(245,158,11,0.2)] rounded-[10px] px-3 py-2 mb-4 text-xs text-[#f59e0b]">
-            ⏱ updatedAt จะอัพเดทอัตโนมัติเมื่อบันทึก
+            เวลาที่แก้ไขจะอัปเดตอัตโนมัติเมื่อบันทึก
           </div>
         )}
 
@@ -143,20 +145,8 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
         )}
 
         <div className="flex flex-col gap-4">
-          {/* ── String type fields ── */}
           {recordType === "string" && (
             <>
-              <div>
-                <label className="text-xs text-[#64748b] mb-1 block">ชื่อไม้ *</label>
-                <input
-                  className="inp"
-                  placeholder="เช่น Wilson Pro Staff 97"
-                  value={form.racket}
-                  onChange={(e) => setForm({ ...form, racket: e.target.value })}
-                  autoFocus
-                />
-              </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-[#64748b] mb-1 block">เอ็น Main</label>
@@ -165,6 +155,7 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
                     placeholder="Main"
                     value={form.string1}
                     onChange={(e) => setForm({ ...form, string1: e.target.value })}
+                    autoFocus
                   />
                 </div>
                 <div>
@@ -188,16 +179,25 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
                       onClick={() => setForm({ ...form, price: p })}
                       className="flex-1 py-[14px] rounded-[12px] font-bold text-lg num cursor-pointer transition-all duration-150"
                       style={{
-                        border: `2px solid ${form.price === p
-                          ? p === 200 ? "#22c55e" : "#f59e0b"
-                          : "rgba(255,255,255,0.1)"
-                          }`,
-                        background: form.price === p
-                          ? p === 200 ? "rgba(34,197,94,0.12)" : "rgba(245,158,11,0.12)"
-                          : "rgba(255,255,255,0.03)",
-                        color: form.price === p
-                          ? p === 200 ? "#22c55e" : "#f59e0b"
-                          : "#64748b",
+                        border: `2px solid ${
+                          form.price === p
+                            ? p === 200
+                              ? "#22c55e"
+                              : "#f59e0b"
+                            : "rgba(255,255,255,0.1)"
+                        }`,
+                        background:
+                          form.price === p
+                            ? p === 200
+                              ? "rgba(34,197,94,0.12)"
+                              : "rgba(245,158,11,0.12)"
+                            : "rgba(255,255,255,0.03)",
+                        color:
+                          form.price === p
+                            ? p === 200
+                              ? "#22c55e"
+                              : "#f59e0b"
+                            : "#64748b",
                       }}
                     >
                       ฿{p}
@@ -216,12 +216,11 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
                   color: form.is_new_racket ? "#f59e0b" : "#64748b",
                 }}
               >
-                {form.is_new_racket ? "เอ็น + ค่าคอมขายไม้" : "ขึ้นเอ็นอย่างเดียว"}
+                {form.is_new_racket ? "ขึ้นเอ็น + ค่าคอมขายไม้" : "ขึ้นเอ็นอย่างเดียว"}
               </button>
             </>
           )}
 
-          {/* ── Other type fields ── */}
           {recordType === "other" && (
             <>
               <div>
@@ -260,7 +259,6 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
             </>
           )}
 
-          {/* Note (shared) */}
           <div>
             <label className="text-xs text-[#64748b] mb-1 block">หมายเหตุ</label>
             <input
@@ -272,7 +270,6 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-3 mt-4">
           <button className="btn-ghost flex-1" onClick={onClose}>
             ยกเลิก
@@ -282,7 +279,7 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? "กำลังบันทึก…" : isEdit ? "💾 บันทึก" : "➕ เพิ่ม"}
+            {loading ? "กำลังบันทึก..." : isEdit ? "บันทึก" : "เพิ่ม"}
           </button>
         </div>
       </div>

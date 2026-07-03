@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/daily", icon: "📝", label: "บันทึก" },
-  { href: "/summary", icon: "📊", label: "สรุป" },
+  { href: "/daily", label: "บันทึก" },
+  { href: "/summary", label: "สรุป" },
 ];
 
 interface Props {
@@ -15,20 +15,20 @@ interface Props {
 export function NavBar({ isAdmin }: Props) {
   const pathname = usePathname();
 
-  const tabs = isAdmin
-    ? [...TABS, { href: "/admin", icon: "⚙️", label: "Admin" }]
-    : TABS;
+  const tabs = isAdmin ? [...TABS, { href: "/admin", label: "Admin" }] : TABS;
 
   return (
     <nav className="bottom-nav">
-      {tabs.map((t) => {
-        const active = pathname.startsWith(t.href);
+      {tabs.map((tab) => {
+        const active = pathname.startsWith(tab.href);
         return (
-          <Link key={t.href} href={t.href} className="nav-item no-underline"
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className="nav-item no-underline"
             style={{ color: active ? "#3b82f6" : "#3b4f6f" }}
           >
-            <span className="text-xl mb-[2px]">{t.icon}</span>
-            <span className="text-[10px] font-semibold">{t.label}</span>
+            <span className="text-[10px] font-semibold">{tab.label}</span>
           </Link>
         );
       })}

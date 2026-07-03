@@ -1,4 +1,4 @@
-import type { Record } from "@/types";
+﻿import type { Record } from "@/types";
 import { fmtDateTime } from "@/lib/utils";
 
 interface Props {
@@ -14,12 +14,9 @@ export function RecordCard({ record: r, onEdit, onDelete }: Props) {
   return (
     <div className="record-item">
       <div className="flex justify-between items-start">
-        {/* Left: seq + details */}
         <div className="flex gap-[10px] items-start flex-1 min-w-0">
-          {/* Seq badge */}
           <div
-            className="w-8 h-8 rounded-[10px] flex items-center justify-center
-                       num font-bold text-sm text-white flex-shrink-0"
+            className="w-8 h-8 rounded-[10px] flex items-center justify-center num font-bold text-sm text-white flex-shrink-0"
             style={{
               background: isOther
                 ? "linear-gradient(135deg,#06b6d4,#0891b2)"
@@ -29,12 +26,10 @@ export function RecordCard({ record: r, onEdit, onDelete }: Props) {
             {r.seq}
           </div>
 
-          {/* Info */}
           <div className="min-w-0">
             {isOther ? (
               <>
                 <div className="flex items-center gap-[6px]">
-                  <span className="text-xs">💰</span>
                   <div className="font-bold text-sm truncate">{r.activity_name}</div>
                 </div>
                 <div
@@ -51,7 +46,7 @@ export function RecordCard({ record: r, onEdit, onDelete }: Props) {
             ) : (
               <>
                 <div className="flex items-center gap-[6px]">
-                  <div className="font-bold text-sm truncate">{r.racket}</div>
+                  <div className="font-bold text-sm truncate">{r.racket || "ไม่ระบุชื่อไม้"}</div>
                 </div>
                 <div className="text-xs text-[#64748b] mt-[2px]">
                   {r.string1}
@@ -59,26 +54,17 @@ export function RecordCard({ record: r, onEdit, onDelete }: Props) {
                 </div>
               </>
             )}
-            {r.note && (
-              <div className="text-[11px] text-[#4b5e7a] mt-[2px]">💬 {r.note}</div>
-            )}
-            {edited && (
-              <span className="badge-edited">✏️ แก้ไข {fmtDateTime(r.updated_at)}</span>
-            )}
+            {r.note && <div className="text-[11px] text-[#4b5e7a] mt-[2px]">หมายเหตุ: {r.note}</div>}
+            {edited && <span className="badge-edited">แก้ไข {fmtDateTime(r.updated_at)}</span>}
           </div>
         </div>
 
-        {/* Right: price + actions */}
         <div className="flex flex-col items-end gap-[6px] flex-shrink-0 ml-2">
           <div className="text-right">
             <div
               className="num text-base"
               style={{
-                color: isOther
-                  ? "#06b6d4"
-                  : r.price === 300
-                  ? "#f59e0b"
-                  : "#22c55e",
+                color: isOther ? "#06b6d4" : r.price === 300 ? "#f59e0b" : "#22c55e",
               }}
             >
               ฿{r.price}
@@ -92,7 +78,7 @@ export function RecordCard({ record: r, onEdit, onDelete }: Props) {
                   border: "1px solid rgba(245,158,11,0.3)",
                 }}
               >
-                🏷️ ขายไม้ +฿200
+                ขายไม้ +฿200
               </div>
             )}
           </div>
@@ -101,13 +87,13 @@ export function RecordCard({ record: r, onEdit, onDelete }: Props) {
               className="btn-ghost px-[10px] py-[6px] text-[11px] rounded-[8px]"
               onClick={() => onEdit(r)}
             >
-              ✏️
+              แก้ไข
             </button>
             <button
               className="btn-danger px-[10px] py-[6px] text-[11px] rounded-[8px]"
               onClick={() => onDelete(r.id)}
             >
-              🗑
+              ลบ
             </button>
           </div>
         </div>

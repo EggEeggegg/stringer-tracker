@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 interface Props {
   title: string;
@@ -23,11 +23,8 @@ export function ConfirmDialog({
         style={{ animation: "slideUp 0.2s ease" }}
       >
         <div className="text-center mb-5">
-          <div className="text-4xl mb-2">🗑</div>
           <div className="font-bold text-base">{title}</div>
-          {description && (
-            <div className="text-[#64748b] text-[13px] mt-1">{description}</div>
-          )}
+          {description && <div className="text-[#64748b] text-[13px] mt-1">{description}</div>}
         </div>
         <div className="flex gap-2">
           <button className="btn-ghost flex-1" onClick={onCancel}>

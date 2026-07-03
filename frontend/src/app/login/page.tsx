@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -30,16 +30,14 @@ export default function LoginPage() {
   return (
     <div className="min-h-dvh flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Header */}
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🎾</div>
+          <div className="text-5xl mb-3">Tennis</div>
           <h1 className="num text-2xl bg-gradient-to-br from-[#60a5fa] to-[#a78bfa] bg-clip-text text-transparent">
             String Tracker
           </h1>
           <p className="text-[#374560] text-xs mt-1">บันทึกการขึ้นเอ็นเทนนิส</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="card flex flex-col gap-4">
           <h2 className="font-bold text-base">เข้าสู่ระบบ</h2>
 
@@ -67,7 +65,7 @@ export default function LoginPage() {
             <input
               className="inp"
               type="password"
-              placeholder="••••••"
+              placeholder="******"
               autoComplete="current-password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -75,12 +73,8 @@ export default function LoginPage() {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full mt-2 disabled:opacity-60"
-          >
-            {loading ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}
+          <button type="submit" disabled={loading} className="btn-primary w-full mt-2 disabled:opacity-60">
+            {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
           </button>
         </form>
       </div>

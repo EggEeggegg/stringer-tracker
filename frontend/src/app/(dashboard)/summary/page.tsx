@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -18,26 +18,23 @@ function SummaryContent() {
 
   const [mode, setMode] = useState<Mode>(initialMode);
 
-  // daily state
   const [dailyData, setDailyData] = useState<DaySummary[]>([]);
   const [dailyLoading, setDailyLoading] = useState(false);
   const [dailyLoaded, setDailyLoaded] = useState(false);
 
-  // monthly state
   const [monthlyData, setMonthlyData] = useState<MonthSummary[]>([]);
   const [monthlyLoading, setMonthlyLoading] = useState(false);
   const [year, setYear] = useState(String(new Date().getFullYear()));
 
-  // filter state
   const [start, setStart] = useState(monthStart);
   const [end, setEnd] = useState(today);
   const [records, setRecords] = useState<Record[]>([]);
   const [filterLoading, setFilterLoading] = useState(false);
   const [filterLoaded, setFilterLoaded] = useState(false);
 
-  const changeMode = (m: Mode) => {
-    setMode(m);
-    router.replace(`/summary?mode=${m}`);
+  const changeMode = (nextMode: Mode) => {
+    setMode(nextMode);
+    router.replace(`/summary?mode=${nextMode}`);
   };
 
   const fetchDaily = useCallback(() => {
@@ -46,7 +43,10 @@ function SummaryContent() {
       .dailySummary()
       .then(setDailyData)
       .catch(() => toast("โหลดข้อมูลล้มเหลว", "error"))
-      .finally(() => { setDailyLoading(false); setDailyLoaded(true); });
+      .finally(() => {
+        setDailyLoading(false);
+        setDailyLoaded(true);
+      });
   }, []);
 
   const fetchMonthly = useCallback(() => {
@@ -77,6 +77,7 @@ function SummaryContent() {
       toast("กรุณาเลือกวันที่ก่อน", "error");
       return;
     }
+
     try {
       const res = await recordsApi.exportExcel(start, end);
       if (!res.ok) {
@@ -99,45 +100,81 @@ function SummaryContent() {
     }
   };
 
-  // load on first visit to each mode
-  useEffect(() => { if (mode === "daily" && !dailyLoaded) fetchDaily(); }, [mode, dailyLoaded, fetchDaily]);
-  useEffect(() => { if (mode === "monthly") fetchMonthly(); }, [mode, year, fetchMonthly]);
-  useEffect(() => { if (mode === "filter" && !filterLoaded) fetchFilter(); }, [mode, filterLoaded, fetchFilter]);
+  const copyJobsList = async () => {
+    if (!start || !end) {
+      toast("กรุณาเลือกวันที่ก่อน", "error");
+      return;
+    }
 
-  // daily totals
-  const dTotal = dailyData.reduce((s, d) => s + d.total, 0);
-  const dSaleTotal = dailyData.reduce((s, d) => s + d.sale_total, 0);
-  const dCount = dailyData.reduce((s, d) => s + d.count, 0);
+    try {
+      const res = await recordsApi.copyJobsList(start, end);
+      const text = res.text;
+      if (!text) {
+        toast("ไม่มีข้อมูลที่จะคัดลอก", "error");
+        return;
+      }
 
-  // monthly totals
-  const mTotal = monthlyData.reduce((s, m) => s + m.total, 0);
-  const mSaleTotal = monthlyData.reduce((s, m) => s + m.sale_total, 0);
-  const mCount = monthlyData.reduce((s, m) => s + m.count, 0);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
 
-  // filter stats
-  const fStringRecords = records.filter((r) => r.record_type === "string");
-  const fOtherRecords = records.filter((r) => r.record_type === "other");
+      toast("คัดลอกรายการงานสำเร็จ", "success");
+    } catch {
+      toast("คัดลอกล้มเหลว", "error");
+    }
+  };
+
+  useEffect(() => {
+    if (mode === "daily" && !dailyLoaded) fetchDaily();
+  }, [mode, dailyLoaded, fetchDaily]);
+
+  useEffect(() => {
+    if (mode === "monthly") fetchMonthly();
+  }, [mode, year, fetchMonthly]);
+
+  useEffect(() => {
+    if (mode === "filter" && !filterLoaded) fetchFilter();
+  }, [mode, filterLoaded, fetchFilter]);
+
+  const dTotal = dailyData.reduce((sum, item) => sum + item.total, 0);
+  const dSaleTotal = dailyData.reduce((sum, item) => sum + item.sale_total, 0);
+  const dCount = dailyData.reduce((sum, item) => sum + item.count, 0);
+
+  const mTotal = monthlyData.reduce((sum, item) => sum + item.total, 0);
+  const mSaleTotal = monthlyData.reduce((sum, item) => sum + item.sale_total, 0);
+  const mCount = monthlyData.reduce((sum, item) => sum + item.count, 0);
+
+  const fStringRecords = records.filter((record) => record.record_type === "string");
+  const fOtherRecords = records.filter((record) => record.record_type === "other");
   const fCount = fStringRecords.length;
   const fOtherCount = fOtherRecords.length;
-  const fStringTotal = fStringRecords.reduce((s, r) => s + r.price, 0);
-  const fOtherTotal = fOtherRecords.reduce((s, r) => s + r.price, 0);
-  const c200 = fStringRecords.filter((r) => r.price === 200).length;
-  const c300 = fStringRecords.filter((r) => r.price === 300).length;
-  const saleCount = fStringRecords.filter((r) => r.is_new_racket).length;
+  const fStringTotal = fStringRecords.reduce((sum, record) => sum + record.price, 0);
+  const fOtherTotal = fOtherRecords.reduce((sum, record) => sum + record.price, 0);
+  const c200 = fStringRecords.filter((record) => record.price === 200).length;
+  const c300 = fStringRecords.filter((record) => record.price === 300).length;
+  const saleCount = fStringRecords.filter((record) => record.is_new_racket).length;
   const saleTotal = saleCount * 200;
   const fTotal = fStringTotal + fOtherTotal + saleTotal;
 
   const MODES: { key: Mode; icon: string; label: string }[] = [
-    { key: "daily", icon: "📊", label: "รายวัน" },
-    { key: "monthly", icon: "📅", label: "รายเดือน" },
-    { key: "filter", icon: "🔍", label: "ช่วงวันที่" },
+    { key: "daily", icon: "รายวัน", label: "รายวัน" },
+    { key: "monthly", icon: "รายเดือน", label: "รายเดือน" },
+    { key: "filter", icon: "ช่วงวันที่", label: "ช่วงวันที่" },
   ];
 
   return (
     <div className="max-w-lg mx-auto px-3 pt-4">
-      {/* Header */}
       <div className="text-center py-2 pb-4">
-        <div className="text-3xl">🎾</div>
+        <div className="text-3xl">Tennis</div>
         <h1
           className="num text-xl"
           style={{
@@ -150,29 +187,26 @@ function SummaryContent() {
         </h1>
       </div>
 
-      {/* Mode toggle */}
       <div
         className="flex rounded-[12px] p-1 mb-5"
         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
       >
-        {MODES.map((m) => (
+        {MODES.map((item) => (
           <button
-            key={m.key}
-            onClick={() => changeMode(m.key)}
+            key={item.key}
+            onClick={() => changeMode(item.key)}
             className="flex-1 py-[8px] rounded-[9px] text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-1"
             style={
-              mode === m.key
+              mode === item.key
                 ? { background: "#3b82f6", color: "#fff" }
                 : { color: "#475569" }
             }
           >
-            <span>{m.icon}</span>
-            <span>{m.label}</span>
+            <span>{item.label}</span>
           </button>
         ))}
       </div>
 
-      {/* ── Daily mode ── */}
       {mode === "daily" && (
         <>
           <div className="mb-4">
@@ -180,47 +214,46 @@ function SummaryContent() {
           </div>
 
           {dailyLoading ? (
-            <div className="text-center text-[#374560] text-sm py-8">กำลังโหลด…</div>
+            <div className="text-center text-[#374560] text-sm py-8">กำลังโหลด...</div>
           ) : dailyData.length === 0 ? (
             <div className="card text-center py-12">
-              <div className="text-4xl mb-2">📊</div>
               <div className="text-[#475569] text-sm">ยังไม่มีข้อมูล</div>
             </div>
           ) : (
             <>
-              {dailyData.map((d, i) => (
+              {dailyData.map((item, index) => (
                 <div
-                  key={d.date}
+                  key={item.date}
                   className="record-item cursor-pointer"
-                  style={{ animationDelay: `${i * 0.03}s` }}
-                  onClick={() => router.push(`/daily?date=${d.date}`)}
+                  style={{ animationDelay: `${index * 0.03}s` }}
+                  onClick={() => router.push(`/daily?date=${item.date}`)}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-sm">{fmtDate(d.date)}</div>
+                      <div className="font-semibold text-sm">{fmtDate(item.date)}</div>
                       <div className="text-xs text-[#4b5e7a] mt-[2px]">
-                        {d.count - d.other_count} ไม้
-                        {d.sale_count > 0 && ` · ได้ค่าคอม ${d.sale_count} ไม้`}
-                        {d.other_count > 0 && ` · อื่นๆ ${d.other_count} รายการ`}
+                        {item.count - item.other_count} ไม้
+                        {item.sale_count > 0 && ` · ได้ค่าคอม ${item.sale_count} ไม้`}
+                        {item.other_count > 0 && ` · อื่นๆ ${item.other_count} รายการ`}
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0 ml-3">
                       <div className="num text-lg" style={{ color: "#22c55e" }}>
-                        ฿{fmtMoney(d.total - d.other_total)} เอ็น
+                        ฿{fmtMoney(item.total - item.other_total)} เอ็น
                       </div>
-                      {d.sale_count > 0 && (
+                      {item.sale_count > 0 && (
                         <div className="num text-xs" style={{ color: "#f59e0b" }}>
-                          +฿{fmtMoney(d.sale_total)} คอม
+                          +฿{fmtMoney(item.sale_total)} คอม
                         </div>
                       )}
-                      {d.other_count > 0 && (
+                      {item.other_count > 0 && (
                         <div className="num text-xs" style={{ color: "#06b6d4" }}>
-                          +฿{fmtMoney(d.other_total)} อื่นๆ
+                          +฿{fmtMoney(item.other_total)} อื่นๆ
                         </div>
                       )}
-                      {(d.sale_count > 0 || d.other_count > 0) && (
+                      {(item.sale_count > 0 || item.other_count > 0) && (
                         <div className="num text-xs font-bold" style={{ color: "#a78bfa" }}>
-                          = ฿{fmtMoney(d.total + d.sale_total)}
+                          = ฿{fmtMoney(item.total + item.sale_total)}
                         </div>
                       )}
                     </div>
@@ -233,17 +266,18 @@ function SummaryContent() {
                 style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)" }}
               >
                 {(() => {
-                  const dOtherTotal = dailyData.reduce((s, d) => s + d.other_total, 0);
-                  const dOtherCount = dailyData.reduce((s, d) => s + d.other_count, 0);
+                  const dOtherTotal = dailyData.reduce((sum, item) => sum + item.other_total, 0);
+                  const dOtherCount = dailyData.reduce((sum, item) => sum + item.other_count, 0);
                   const dStringTotal = dTotal - dOtherTotal;
                   const dStringCount = dCount - dOtherCount;
+
                   return (
                     <div className="flex justify-between items-center">
                       <div>
                         <div className="font-bold text-sm">รวมทั้งหมด</div>
                         <div className="text-xs text-[#64748b]">
                           {dStringCount} ไม้ · {dailyData.length} วัน
-                          {dSaleTotal > 0 && ` · ค่าคอม ${dailyData.reduce((s, d) => s + d.sale_count, 0)} ไม้`}
+                          {dSaleTotal > 0 && ` · ค่าคอม ${dailyData.reduce((sum, item) => sum + item.sale_count, 0)} ไม้`}
                           {dOtherCount > 0 && ` · อื่นๆ ${dOtherCount} รายการ`}
                         </div>
                       </div>
@@ -268,7 +302,6 @@ function SummaryContent() {
         </>
       )}
 
-      {/* ── Monthly mode ── */}
       {mode === "monthly" && (
         <>
           <div className="flex justify-between items-center mb-4">
@@ -279,48 +312,50 @@ function SummaryContent() {
               value={year}
               onChange={(e) => setYear(e.target.value)}
             >
-              {Array.from({ length: 5 }, (_, i) => String(new Date().getFullYear() - i)).map((y) => (
-                <option key={y} value={y} style={{ color: "#fff" }}>{y}</option>
+              {Array.from({ length: 5 }, (_, index) => String(new Date().getFullYear() - index)).map((value) => (
+                <option key={value} value={value} style={{ color: "#fff" }}>
+                  {value}
+                </option>
               ))}
             </select>
           </div>
 
           {monthlyLoading ? (
-            <div className="text-center text-[#374560] text-sm py-8">กำลังโหลด…</div>
+            <div className="text-center text-[#374560] text-sm py-8">กำลังโหลด...</div>
           ) : monthlyData.length === 0 ? (
             <div className="card text-center py-12">
-              <div className="text-4xl mb-2">📅</div>
               <div className="text-[#475569] text-sm">ไม่มีข้อมูลปี {year}</div>
             </div>
           ) : (
             <>
-              {monthlyData.map((m, i) => {
-                const [y, mo] = m.month.split("-");
+              {monthlyData.map((item, index) => {
+                const [itemYear, month] = item.month.split("-");
+
                 return (
-                  <div key={m.month} className="record-item" style={{ animationDelay: `${i * 0.05}s` }}>
+                  <div key={item.month} className="record-item" style={{ animationDelay: `${index * 0.05}s` }}>
                     <div className="flex justify-between items-start">
                       <div className="flex-1 min-w-0">
                         <div className="font-bold text-[15px]">
-                          {MONTHS_TH[parseInt(mo) - 1]} {y}
+                          {MONTHS_TH[parseInt(month, 10) - 1]} {itemYear}
                         </div>
                         <div className="text-xs text-[#4b5e7a] mt-[2px]">
-                          {m.count - m.other_count} ไม้
-                          {m.sale_count > 0 && ` · ได้ค่าคอม ${m.sale_count} ไม้`}
-                          {m.other_count > 0 && ` · อื่นๆ ${m.other_count} รายการ`}
-                          {` · รวม ฿${fmtMoney(m.total + m.sale_total)}`}
+                          {item.count - item.other_count} ไม้
+                          {item.sale_count > 0 && ` · ได้ค่าคอม ${item.sale_count} ไม้`}
+                          {item.other_count > 0 && ` · อื่นๆ ${item.other_count} รายการ`}
+                          {` · รวม ฿${fmtMoney(item.total + item.sale_total)}`}
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0 ml-3">
-                        <div className="num text-xl" style={{ color: "#22c55e" }}>฿{fmtMoney(m.total - m.other_total)} เอ็น</div>
-                        {m.sale_count > 0 && (
-                          <div className="num text-sm" style={{ color: "#f59e0b" }}>+฿{fmtMoney(m.sale_total)} คอม</div>
+                        <div className="num text-xl" style={{ color: "#22c55e" }}>฿{fmtMoney(item.total - item.other_total)} เอ็น</div>
+                        {item.sale_count > 0 && (
+                          <div className="num text-sm" style={{ color: "#f59e0b" }}>+฿{fmtMoney(item.sale_total)} คอม</div>
                         )}
-                        {m.other_count > 0 && (
-                          <div className="num text-sm" style={{ color: "#06b6d4" }}>+฿{fmtMoney(m.other_total)} อื่นๆ</div>
+                        {item.other_count > 0 && (
+                          <div className="num text-sm" style={{ color: "#06b6d4" }}>+฿{fmtMoney(item.other_total)} อื่นๆ</div>
                         )}
-                        {(m.sale_count > 0 || m.other_count > 0) && (
+                        {(item.sale_count > 0 || item.other_count > 0) && (
                           <div className="num text-sm font-bold" style={{ color: "#a78bfa" }}>
-                            = ฿{fmtMoney(m.total)}
+                            = ฿{fmtMoney(item.total)}
                           </div>
                         )}
                       </div>
@@ -334,17 +369,18 @@ function SummaryContent() {
                 style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)" }}
               >
                 {(() => {
-                  const mOtherTotal = monthlyData.reduce((s, m) => s + m.other_total, 0);
-                  const mOtherCount = monthlyData.reduce((s, m) => s + m.other_count, 0);
+                  const mOtherTotal = monthlyData.reduce((sum, item) => sum + item.other_total, 0);
+                  const mOtherCount = monthlyData.reduce((sum, item) => sum + item.other_count, 0);
                   const mStringTotal = mTotal - mOtherTotal;
                   const mStringCount = mCount - mOtherCount;
+
                   return (
                     <div className="flex justify-between items-center">
                       <div>
                         <div className="font-bold">รวมทั้งหมด</div>
                         <div className="text-xs text-[#64748b]">
                           {mStringCount} ไม้
-                          {mSaleTotal > 0 && ` · ค่าคอม ${monthlyData.reduce((s, m) => s + m.sale_count, 0)} ไม้`}
+                          {mSaleTotal > 0 && ` · ค่าคอม ${monthlyData.reduce((sum, item) => sum + item.sale_count, 0)} ไม้`}
                           {mOtherCount > 0 && ` · อื่นๆ ${mOtherCount} รายการ`}
                         </div>
                       </div>
@@ -369,7 +405,6 @@ function SummaryContent() {
         </>
       )}
 
-      {/* ── Filter mode ── */}
       {mode === "filter" && (
         <>
           <div className="card mb-4">
@@ -395,12 +430,17 @@ function SummaryContent() {
               </div>
             </div>
             <button className="btn-primary w-full mt-4" onClick={fetchFilter} disabled={filterLoading}>
-              {filterLoading ? "กำลังโหลด…" : "ค้นหา"}
+              {filterLoading ? "กำลังโหลด..." : "ค้นหา"}
             </button>
             {filterLoaded && (
-              <button className="btn-ghost w-full mt-2" onClick={exportExcel}>
-                📥 Export Excel
-              </button>
+              <>
+                <button className="btn-ghost w-full mt-2" onClick={exportExcel}>
+                  Export Excel
+                </button>
+                <button className="btn-ghost w-full mt-2" onClick={copyJobsList}>
+                  คัดลอกรายการงาน
+                </button>
+              </>
             )}
           </div>
 
@@ -412,11 +452,11 @@ function SummaryContent() {
                   { label: "รายได้ขึ้นเอ็น", value: `฿${fmtMoney(fStringTotal)}`, color: "#22c55e" },
                   { label: "ได้ค่าคอม", value: saleCount, unit: "ไม้", color: "#3b82f6" },
                   { label: "ค่าคอมรวม", value: `฿${fmtMoney(saleTotal)}`, color: "#3b82f6" },
-                ].map((s, i) => (
-                  <div key={i} className="stat-card flex flex-col justify-between" style={{ animationDelay: `${i * 0.06}s` }}>
-                    <div className="text-[#475569] text-[11px] font-semibold mb-1">{s.label}</div>
-                    <div className="num text-2xl" style={{ color: s.color }}>{s.value}</div>
-                    <div className="text-[11px] text-[#2d3a52]">{s.unit ?? "\u00A0"}</div>
+                ].map((item, index) => (
+                  <div key={index} className="stat-card flex flex-col justify-between" style={{ animationDelay: `${index * 0.06}s` }}>
+                    <div className="text-[#475569] text-[11px] font-semibold mb-1">{item.label}</div>
+                    <div className="num text-2xl" style={{ color: item.color }}>{item.value}</div>
+                    <div className="text-[11px] text-[#2d3a52]">{item.unit ?? "\u00A0"}</div>
                   </div>
                 ))}
                 {fOtherCount > 0 && (

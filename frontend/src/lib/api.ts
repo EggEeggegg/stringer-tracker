@@ -132,6 +132,13 @@ export const recordsApi = {
     };
     return fetch(url, { headers });
   },
+
+  copyJobsList: (start: string, end: string) => {
+    const q = new URLSearchParams();
+    q.set("start", start);
+    q.set("end", end);
+    return request<{ text: string }>(`/api/records/copy-list?${q}`);
+  },
 };
 
 // ─── Admin ────────────────────────────────────────────────────────────────────

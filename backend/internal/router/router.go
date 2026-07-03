@@ -58,6 +58,7 @@ func New(cfg *config.Config, db *gorm.DB) *gin.Engine {
 		rec.GET("/summary/daily", h.DailySummary)
 		rec.GET("/summary/monthly", h.MonthlySummary)
 		rec.GET("/export", h.ExportRecordsExcel)
+		rec.GET("/copy-list", h.CopyJobsList)
 		rec.POST("", h.CreateRecord)
 		rec.PUT("/:id", h.UpdateRecord)
 		rec.DELETE("/:id", h.DeleteRecord)
