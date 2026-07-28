@@ -1,0 +1,30 @@
+---
+description: How to run this project locally
+alwaysApply: true
+---
+
+# Run Project Locally
+
+When asked how to run this repository, provide these steps:
+
+1) Backend setup and run (from `backend/`):
+- `copy .env.example .env`
+- Fill `DATABASE_URL`, `JWT_SECRET`, and keep `PORT=8080`
+- `task migrate`
+- `task seed`
+- `task dev` (or `task run`)
+
+2) Frontend setup and run (from `frontend/`):
+- `copy .env.example .env.local`
+- Set `NEXT_PUBLIC_API_URL=http://localhost:8080`
+- `bun install`
+- `bun run dev`
+
+3) Access app:
+- Open `http://localhost:3000`
+- Default admin: `admin / admin123`
+
+Notes:
+- On this project, prefer `task` commands for Go backend workflows.
+- For the frontend, use `bun` instead of `npm`.
+- Backend `Taskfile.yml` lives in `backend/`.

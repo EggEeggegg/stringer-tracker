@@ -12,14 +12,14 @@
 tennis-tracker/
 ├── backend/                         ← Go API server
 │   ├── go.mod                       ← module: tennis-tracker
-│   ├── Makefile                     ← make run / build / migrate / seed
+│   ├── Taskfile.yml                 ← task run / build / migrate / seed
 │   ├── .env.example
 │   ├── migrations/
 │   │   ├── 001_init.sql             ← CREATE TABLE users, records + triggers
 │   │   └── 002_add_record_type.sql  ← เพิ่ม type column (string | sale)
 │   ├── cmd/
 │   │   ├── server/main.go           ← HTTP server entry + graceful shutdown
-│   │   └── seed/main.go             ← สร้าง admin user (make seed)
+│   │   └── seed/main.go             ← สร้าง admin user (task seed)
 │   └── internal/
 │       ├── config/config.go         ← Load env vars (mustEnv / getEnv)
 │       ├── database/database.go     ← GORM DB instance + connection settings
@@ -86,10 +86,10 @@ NEXT_PUBLIC_API_URL=https://your-api.railway.app
 cd backend
 cp .env.example .env           # แก้ค่าใน .env
 go mod tidy                    # install dependencies
-make migrate                   # สร้างตาราง DB
-make seed                      # สร้าง admin user (admin / admin123)
-make run                       # dev server (port 8080)
-make build                     # build binary
+task migrate                   # สร้างตาราง DB
+task seed                      # สร้าง admin user (admin / admin123)
+task run                       # dev server (port 8080)
+task build                     # build binary
 ```
 
 ### Frontend

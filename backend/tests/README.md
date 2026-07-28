@@ -11,7 +11,7 @@ go test ./tests -v
 
 ### Test Results
 
-All 13 tests passing ✅
+All tests passing ✅
 
 ```
 === RUN   TestLogin_ValidCredentials
@@ -20,7 +20,6 @@ All 13 tests passing ✅
 === RUN   TestUserRole_Validation
 === RUN   TestRecordType_Validation
 === RUN   TestJWTClaims_Structure
-=== RUN   TestNewRacketCommission_Constant
 === RUN   TestCaseInsensitiveUsername
 === RUN   TestHTTPStatusCodes
 === RUN   TestJSONMarshaling
@@ -49,11 +48,11 @@ ok  	tennis-tracker/tests	1.323s
 
 - **TestRecordType_Validation**: Record type and price constraints
   - String type: price must be 200 or 300
-  - Other type: any price allowed
+  - Sale type: price must be greater than 0
+  - Other type: price must be greater than 0
   - Invalid: unknown type
 
 ### 4. Constants & Configuration
-- **TestNewRacketCommission_Constant**: Verify commission is 200
 - **TestJWTClaims_Structure**: JWT claims structure
 
 ### 5. HTTP & Serialization

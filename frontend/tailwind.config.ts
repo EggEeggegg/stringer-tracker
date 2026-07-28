@@ -9,27 +9,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Dark background palette (from original app)
         bg: {
-          base: "#0b0f1a",
-          card: "rgba(255,255,255,0.035)",
-          hover: "rgba(255,255,255,0.05)",
+          base: "#F3EFE4",
+          card: "#FFFcf5",
+          hover: "rgba(47,107,58,0.06)",
         },
         border: {
-          DEFAULT: "rgba(255,255,255,0.07)",
-          focus: "#3b82f6",
+          DEFAULT: "rgba(47,107,58,0.14)",
+          focus: "#2F6B3A",
         },
         content: {
-          DEFAULT: "#e2e8f0",
-          muted: "#64748b",
-          dim: "#374560",
+          DEFAULT: "#1F2E1C",
+          muted: "#5C6B57",
+          dim: "#8A9784",
         },
         accent: {
-          blue: "#3b82f6",
-          green: "#22c55e",
-          amber: "#f59e0b",
-          purple: "#a78bfa",
-          red: "#f87171",
+          green: "#2F6B3A",
+          lime: "#5B9A4A",
+          amber: "#B8860B",
+          teal: "#2A7A6E",
+          red: "#C44B4B",
         },
       },
       fontFamily: {

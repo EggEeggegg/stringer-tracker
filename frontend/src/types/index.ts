@@ -8,30 +8,42 @@ export interface User {
   updated_at?: string;
 }
 
+export type RecordType = "string" | "sale" | "demo" | "grip" | "other";
+
 export interface Record {
   id: string;
   user_id: string;
   date: string; // YYYY-MM-DD
   seq: number;
-  record_type: "string" | "other";
+  record_type: RecordType;
   racket: string;
   string1: string;
   string2: string;
   price: number;
-  is_new_racket: boolean;
-  activity_name: string;
   note: string;
   created_at: string;
   updated_at: string;
+}
+
+export const RECORD_TYPE_LABELS: { [K in RecordType]: string } = {
+  string: "ขึ้นเอ็น",
+  sale: "ค่าคอมขายไม้",
+  demo: "ค่าบริการ Demo ไม้เทนนิส",
+  grip: "พัน Grip",
+  other: "อื่นๆ",
+};
+
+export function isOtherIncome(type: string): boolean {
+  return type === "demo" || type === "grip" || type === "other";
 }
 
 export interface DaySummary {
   date: string; // YYYY-MM-DD
   count: number;
   total: number;       // รายได้รวมทุกประเภท
-  sale_count: number;  // จำนวนไม้ใหม่
-  sale_total: number;  // ค่าคอมขายไม้ (sale_count * 200)
-  other_count: number; // จำนวน record type=other
+  sale_count: number;  // จำนวนค่าคอมขายไม้
+  sale_total: number;  // ยอดค่าคอมขายไม้
+  other_count: number; // จำนวนรายได้อื่นๆ (demo/grip/other)
   other_total: number; // ยอดรายได้อื่นๆ
 }
 

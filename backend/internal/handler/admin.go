@@ -232,10 +232,10 @@ func (h *Handler) AdminReport(c *gin.Context) {
 			COALESCE(SUM(r.price) FILTER (WHERE r.record_type = 'string' OR r.record_type IS NULL), 0) AS total,
 			COUNT(r.id) FILTER (WHERE r.price = 200 AND (r.record_type = 'string' OR r.record_type IS NULL)) AS count_200,
 			COUNT(r.id) FILTER (WHERE r.price = 300 AND (r.record_type = 'string' OR r.record_type IS NULL)) AS count_300,
-			COUNT(r.id) FILTER (WHERE r.is_new_racket)                           AS sale_count,
-			COALESCE(SUM(CASE WHEN r.is_new_racket THEN 200 END), 0)             AS sale_total,
-			COUNT(r.id) FILTER (WHERE r.record_type = 'other')                   AS other_count,
-			COALESCE(SUM(r.price) FILTER (WHERE r.record_type = 'other'), 0)     AS other_total
+			COUNT(r.id) FILTER (WHERE r.record_type = 'sale')                    AS sale_count,
+			COALESCE(SUM(r.price) FILTER (WHERE r.record_type = 'sale'), 0)     AS sale_total,
+			COUNT(r.id) FILTER (WHERE r.record_type IN ('demo', 'grip', 'other'))                   AS other_count,
+			COALESCE(SUM(r.price) FILTER (WHERE r.record_type IN ('demo', 'grip', 'other')), 0)     AS other_total
 		FROM users u
 		LEFT JOIN records r ON %s
 		WHERE u.is_deleted = false
@@ -301,10 +301,10 @@ func (h *Handler) ExportReportCSV(c *gin.Context) {
 			COALESCE(SUM(r.price) FILTER (WHERE r.record_type = 'string' OR r.record_type IS NULL), 0) AS total,
 			COUNT(r.id) FILTER (WHERE r.price = 200 AND (r.record_type = 'string' OR r.record_type IS NULL)) AS count_200,
 			COUNT(r.id) FILTER (WHERE r.price = 300 AND (r.record_type = 'string' OR r.record_type IS NULL)) AS count_300,
-			COUNT(r.id) FILTER (WHERE r.is_new_racket)                           AS sale_count,
-			COALESCE(SUM(CASE WHEN r.is_new_racket THEN 200 END), 0)             AS sale_total,
-			COUNT(r.id) FILTER (WHERE r.record_type = 'other')                   AS other_count,
-			COALESCE(SUM(r.price) FILTER (WHERE r.record_type = 'other'), 0)     AS other_total
+			COUNT(r.id) FILTER (WHERE r.record_type = 'sale')                    AS sale_count,
+			COALESCE(SUM(r.price) FILTER (WHERE r.record_type = 'sale'), 0)     AS sale_total,
+			COUNT(r.id) FILTER (WHERE r.record_type IN ('demo', 'grip', 'other'))                   AS other_count,
+			COALESCE(SUM(r.price) FILTER (WHERE r.record_type IN ('demo', 'grip', 'other')), 0)     AS other_total
 		FROM users u
 		LEFT JOIN records r ON %s
 		GROUP BY u.id, u.name, u.username
@@ -445,9 +445,7 @@ func (h *Handler) ExportReportCSV(c *gin.Context) {
 	f.SetCellValue(recordsSheet, fmt.Sprintf("E%d", row), "String 1")
 	f.SetCellValue(recordsSheet, fmt.Sprintf("F%d", row), "String 2")
 	f.SetCellValue(recordsSheet, fmt.Sprintf("G%d", row), "ราคา (บาท)")
-	f.SetCellValue(recordsSheet, fmt.Sprintf("H%d", row), "ไม้ใหม่")
-	f.SetCellValue(recordsSheet, fmt.Sprintf("I%d", row), "Activity/รายการ")
-	f.SetCellValue(recordsSheet, fmt.Sprintf("J%d", row), "หมายเหตุ")
+	f.SetCellValue(recordsSheet, fmt.Sprintf("H%d", row), "หมายเหตุ")
 	row++
 
 	// Data
@@ -462,21 +460,14 @@ func (h *Handler) ExportReportCSV(c *gin.Context) {
 			recordType = "string"
 		}
 
-		isNewRacketStr := ""
-		if rec.IsNewRacket {
-			isNewRacketStr = "ใช่"
-		}
-
 		f.SetCellValue(recordsSheet, fmt.Sprintf("A%d", row), rec.DateStr)
 		f.SetCellValue(recordsSheet, fmt.Sprintf("B%d", row), userName)
-		f.SetCellValue(recordsSheet, fmt.Sprintf("C%d", row), recordType)
+		f.SetCellValue(recordsSheet, fmt.Sprintf("C%d", row), model.RecordTypeLabel(recordType))
 		f.SetCellValue(recordsSheet, fmt.Sprintf("D%d", row), rec.Racket)
 		f.SetCellValue(recordsSheet, fmt.Sprintf("E%d", row), rec.String1)
 		f.SetCellValue(recordsSheet, fmt.Sprintf("F%d", row), rec.String2)
 		f.SetCellValue(recordsSheet, fmt.Sprintf("G%d", row), rec.Price)
-		f.SetCellValue(recordsSheet, fmt.Sprintf("H%d", row), isNewRacketStr)
-		f.SetCellValue(recordsSheet, fmt.Sprintf("I%d", row), rec.ActivityName)
-		f.SetCellValue(recordsSheet, fmt.Sprintf("J%d", row), rec.Note)
+		f.SetCellValue(recordsSheet, fmt.Sprintf("H%d", row), rec.Note)
 		row++
 	}
 
