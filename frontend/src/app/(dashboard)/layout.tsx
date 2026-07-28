@@ -4,30 +4,28 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { NavBar } from "@/components/NavBar";
 import { ToastContainer } from "@/components/Toast";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
+import { PageLoadingSkeleton } from "@/components/Skeleton";
 import { getToken, getStoredUser, clearAuth } from "@/lib/utils";
-import { healthApi, authApi } from "@/lib/api";
+import { authApi } from "@/lib/api";
 import type { User } from "@/types";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    // Wake up Render backend on cold start
-    // healthApi.check().catch(() => {});
-
     const token = getToken();
     if (!token) {
       router.replace("/login");
       return;
     }
 
-    // Try stored user first for immediate render
     const stored = getStoredUser();
     if (stored) setUser(stored);
 
-    // Verify token is still valid with server
     authApi
       .me()
       .then((u) => {
@@ -42,22 +40,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [router]);
 
   if (!ready && !user) {
-    return (
-      <div className="min-h-dvh flex items-center justify-center">
-        <div className="text-[#374560] text-sm">กำลังโหลด…</div>
-      </div>
-    );
+    return <PageLoadingSkeleton />;
   }
 
   return (
-    <div className="min-h-dvh pb-[80px]">
+    <div className="min-h-dvh pb-[calc(72px+env(safe-area-inset-bottom,0px))]">
       <ToastContainer />
 
-      {/* Logout button (top-right) */}
       <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-        <span className="text-sm text-[#64748b]">{user?.name}</span>
+        <span className="text-sm text-[#5C6B57] max-w-[120px] truncate">{user?.name}</span>
         <button
-          className="text-xs text-[#64748b] px-3 py-[6px] rounded-[6px] bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08]"
+          type="button"
+          className="text-xs text-[#5C6B57] px-3 py-[6px] rounded-[8px] bg-[#FFFcf5] border border-[rgba(47,107,58,0.14)] hover:bg-[rgba(47,107,58,0.06)] shadow-sm"
+          onClick={() => setShowPassword(true)}
+        >
+          รหัสผ่าน
+        </button>
+        <button
+          type="button"
+          className="text-xs text-[#5C6B57] px-3 py-[6px] rounded-[8px] bg-[#FFFcf5] border border-[rgba(47,107,58,0.14)] hover:bg-[rgba(47,107,58,0.06)] shadow-sm"
           onClick={() => {
             clearAuth();
             router.replace("/login");
@@ -70,6 +71,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="pt-16">{children}</div>
 
       <NavBar isAdmin={user?.role === "admin"} />
+
+      {showPassword && <ChangePasswordModal onClose={() => setShowPassword(false)} />}
     </div>
   );
 }

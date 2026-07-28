@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { BrandLogo } from "@/components/BrandLogo";
 import { authApi } from "@/lib/api";
 import { TOKEN_KEY, USER_KEY } from "@/lib/utils";
 
@@ -31,24 +32,22 @@ export default function LoginPage() {
     <div className="min-h-dvh flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">Tennis</div>
-          <h1 className="num text-2xl bg-gradient-to-br from-[#60a5fa] to-[#a78bfa] bg-clip-text text-transparent">
-            String Tracker
-          </h1>
-          <p className="text-[#374560] text-xs mt-1">บันทึกการขึ้นเอ็นเทนนิส</p>
+          <BrandLogo size="lg" className="mb-4" />
+          <h1 className="brand-title text-2xl">String Tracker</h1>
+          <p className="text-[#8A9784] text-xs mt-1">บันทึกการขึ้นเอ็นเทนนิส</p>
         </div>
 
         <form onSubmit={handleSubmit} className="card flex flex-col gap-4">
-          <h2 className="font-bold text-base">เข้าสู่ระบบ</h2>
+          <h2 className="font-bold text-base text-[#1F2E1C]">เข้าสู่ระบบ</h2>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-[10px] px-3 py-2 text-[#f87171] text-sm">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-[10px] px-3 py-2 text-[#C44B4B] text-sm">
               {error}
             </div>
           )}
 
           <div>
-            <label className="text-[#64748b] text-xs mb-1 block">ชื่อผู้ใช้</label>
+            <label className="text-[#5C6B57] text-xs mb-1 block">ชื่อผู้ใช้</label>
             <input
               className="inp"
               type="text"
@@ -61,7 +60,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="text-[#64748b] text-xs mb-1 block">รหัสผ่าน</label>
+            <label className="text-[#5C6B57] text-xs mb-1 block">รหัสผ่าน</label>
             <input
               className="inp"
               type="password"

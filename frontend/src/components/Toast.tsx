@@ -13,9 +13,9 @@ export function toast(msg: string, type: TT = "success") {
 }
 
 const BG: Record<TT, string> = {
-  success: "#16a34a",
-  error: "#dc2626",
-  warning: "#d97706",
+  success: "#2F6B3A",
+  error: "#C44B4B",
+  warning: "#B8860B",
 };
 
 export function ToastContainer() {
@@ -38,7 +38,7 @@ export function ToastContainer() {
         <div
           key={t.id}
           className="animate-toast px-6 py-[10px] rounded-[12px] text-white font-bold text-sm
-                     shadow-[0_8px_32px_rgba(0,0,0,0.4)] whitespace-nowrap"
+                     shadow-[0_8px_32px_rgba(31,46,28,0.25)] whitespace-nowrap"
           style={{ backgroundColor: BG[t.type] }}
         >
           {t.msg}

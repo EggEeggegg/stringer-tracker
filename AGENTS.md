@@ -12,7 +12,7 @@
 tennis-tracker/
 |- backend/
 |  |- go.mod
-|  |- Makefile
+|  |- Taskfile.yml
 |  |- .env.example
 |  |- migrations/
 |  |  |- 001_init.sql
@@ -91,10 +91,10 @@ NEXT_PUBLIC_API_URL=https://your-api.railway.app
 cd backend
 cp .env.example .env
 go mod tidy
-make migrate
-make seed
-make run
-make build
+task migrate
+task seed
+task run
+task build
 ```
 
 ### Frontend

@@ -103,7 +103,14 @@ func TestRecordType_Validation(t *testing.T) {
 		{"string type with 200", "string", 200, true},
 		{"string type with 300", "string", 300, true},
 		{"string type with 250", "string", 250, false},
+		{"sale type with 200", "sale", 200, true},
+		{"sale type with 500", "sale", 500, true},
+		{"sale type with custom price", "sale", 350, false},
+		{"sale type with zero", "sale", 0, false},
 		{"other type with any price", "other", 500, true},
+		{"demo type with any price", "demo", 150, true},
+		{"grip type with any price", "grip", 100, true},
+		{"demo type with zero", "demo", 0, false},
 		{"invalid type", "unknown", 200, false},
 	}
 
@@ -128,11 +135,6 @@ func TestJWTClaims_Structure(t *testing.T) {
 	assert.Equal(t, "Test User", claims.Name)
 	assert.Equal(t, "admin", claims.Role)
 	assert.NotNil(t, claims.RegisteredClaims)
-}
-
-func TestNewRacketCommission_Constant(t *testing.T) {
-	// Verify constant value for consistency
-	assert.Equal(t, 200, model.NewRacketCommission)
 }
 
 func TestCaseInsensitiveUsername(t *testing.T) {
@@ -230,8 +232,10 @@ func isValidRecord(recordType string, price int) bool {
 	switch recordType {
 	case "string":
 		return price == 200 || price == 300
-	case "other":
-		return true
+	case "sale":
+		return price == 200 || price == 500
+	case "demo", "grip", "other":
+		return price > 0
 	default:
 		return false
 	}

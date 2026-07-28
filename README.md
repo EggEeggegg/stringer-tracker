@@ -39,10 +39,10 @@ go run ./cmd/seed    # สร้าง admin user
 go run ./cmd/server  # start dev server (port 8080)
 ```
 
-หรือใช้ Makefile:
+หรือใช้ Task:
 ```bash
-make seed
-make run
+task seed
+task run
 ```
 
 ### 3. Frontend

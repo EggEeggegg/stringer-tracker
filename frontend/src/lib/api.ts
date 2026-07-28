@@ -86,13 +86,11 @@ export const recordsApi = {
 
   create: (body: {
     date: string;
-    record_type?: string;
+    record_type?: "string" | "sale" | "demo" | "grip" | "other";
     racket?: string;
     string1?: string;
     string2?: string;
     price: number;
-    is_new_racket?: boolean;
-    activity_name?: string;
     note?: string;
   }) =>
     request<TRecord>("/api/records", {
@@ -103,13 +101,11 @@ export const recordsApi = {
   update: (
     id: string,
     body: {
-      record_type?: string;
+      record_type?: "string" | "sale" | "demo" | "grip" | "other";
       racket?: string;
       string1?: string;
       string2?: string;
       price: number;
-      is_new_racket?: boolean;
-      activity_name?: string;
       note?: string;
     }
   ) =>

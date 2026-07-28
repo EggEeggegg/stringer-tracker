@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { adminApi } from "@/lib/api";
+import { BrandLogo } from "@/components/BrandLogo";
 import { toast } from "@/components/Toast";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { fmtMoney, getStoredUser, today } from "@/lib/utils";
@@ -218,12 +219,12 @@ function AdminContent() {
 
   const avatarColor = (name: string) => {
     const colors = [
-      "from-blue-500 to-blue-700",
-      "from-purple-500 to-purple-700",
-      "from-emerald-500 to-emerald-700",
-      "from-amber-500 to-orange-600",
-      "from-rose-500 to-rose-700",
-      "from-cyan-500 to-cyan-700",
+      "from-[#5B9A4A] to-[#2F6B3A]",
+      "from-[#2A7A6E] to-[#1F5C53]",
+      "from-[#6BB05A] to-[#1F4D28]",
+      "from-[#C9A227] to-[#B8860B]",
+      "from-[#8A9784] to-[#5C6B57]",
+      "from-[#3D8B4F] to-[#1F4D28]",
     ];
     const i = name.charCodeAt(0) % colors.length;
     return colors[i];
@@ -233,20 +234,11 @@ function AdminContent() {
     <div className="max-w-lg mx-auto px-4 pt-4 pb-2">
       {/* Header */}
       <div className="text-center py-3 pb-5">
-        <div className="text-4xl mb-1">🎾</div>
-        <h1
-          className="num text-2xl font-bold"
-          style={{
-            background: "linear-gradient(135deg,#60a5fa,#a78bfa)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          String Tracker
-        </h1>
-        <div className="flex items-center justify-center gap-1 mt-1">
-          <span className="text-[11px] text-[#475569] bg-white/[0.05] border border-white/[0.08] rounded-full px-3 py-[3px]">
-            ⚙️ Admin Dashboard
+        <BrandLogo size="md" />
+        <h1 className="brand-title text-2xl">String Tracker</h1>
+        <div className="flex items-center justify-center gap-1 mt-2">
+          <span className="text-[11px] text-[#5C6B57] bg-[#FFFcf5] border border-[rgba(47,107,58,0.14)] rounded-full px-3 py-[3px]">
+            Admin Dashboard
           </span>
         </div>
       </div>
@@ -254,7 +246,7 @@ function AdminContent() {
       {/* Sub tabs */}
       <div
         className="flex rounded-[14px] p-[5px] mb-5"
-        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ background: "rgba(47,107,58,0.06)", border: "1px solid rgba(47,107,58,0.12)" }}
       >
         {(["users", "report"] as const).map((t) => (
           <button
@@ -263,8 +255,8 @@ function AdminContent() {
             className="flex-1 py-[10px] rounded-[10px] text-sm font-semibold transition-all duration-200"
             style={
               tab === t
-                ? { background: "linear-gradient(135deg,#3b82f6,#2563eb)", color: "#fff" }
-                : { color: "#475569" }
+                ? { background: "linear-gradient(135deg,#2F6B3A,#1F4D28)", color: "#fff" }
+                : { color: "#5C6B57" }
             }
           >
             {t === "users" ? "👥 ผู้ใช้" : "📊 รายงาน"}
@@ -280,7 +272,7 @@ function AdminContent() {
               <h2 className="font-bold text-base">
                 {showDeletedUsers ? "ผู้ใช้ที่ถูกลบ" : "รายชื่อผู้ใช้"}
               </h2>
-              <p className="text-xs text-[#475569]">
+              <p className="text-xs text-[#5C6B57]">
                 {showDeletedUsers ? deletedUsers.length : users.length} บัญชี
               </p>
             </div>
@@ -288,8 +280,8 @@ function AdminContent() {
               {deletedUsers.length > 0 && (
                 <button
                   className={`text-xs px-3 py-[10px] rounded-[10px] border font-semibold transition-all ${showDeletedUsers
-                    ? "text-gray-400 border-gray-500/30 bg-gray-500/10 active:bg-gray-500/20"
-                    : "text-emerald-400 border-emerald-500/30 bg-emerald-500/10 active:bg-emerald-500/20"
+                    ? "text-[#8A9784] border-[rgba(90,107,87,0.3)] bg-[rgba(90,107,87,0.1)] active:bg-[rgba(90,107,87,0.18)]"
+                    : "text-[#2F6B3A] border-[rgba(47,107,58,0.3)] bg-[rgba(47,107,58,0.1)] active:bg-[rgba(47,107,58,0.18)]"
                     }`}
                   onClick={() => {
                     setShowDeletedUsers(!showDeletedUsers);
@@ -313,14 +305,14 @@ function AdminContent() {
           {showDeletedUsers ? (
             deletedUsers.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-[#475569] text-sm">ไม่มีผู้ใช้ที่ถูกลบ</p>
+                <p className="text-[#5C6B57] text-sm">ไม่มีผู้ใช้ที่ถูกลบ</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
                 {deletedUsers.map((u) => (
                   <div
                     key={u.id}
-                    className="rounded-[16px] border border-white/[0.07] bg-white/[0.03] p-4"
+                    className="rounded-[16px] border border-[rgba(47,107,58,0.12)] bg-[#FFFcf5] p-4"
                   >
                     <div className="flex items-center gap-3">
                       {/* Avatar */}
@@ -333,19 +325,19 @@ function AdminContent() {
                       {/* Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-[15px] text-[#e2e8f0]">{u.name}</span>
+                          <span className="font-bold text-[15px] text-[#1F2E1C]">{u.name}</span>
                           {u.role === "admin" && (
-                            <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/25 px-2 py-[2px] rounded-full font-semibold">
+                            <span className="text-[10px] bg-[rgba(47,107,58,0.12)] text-[#2F6B3A] border border-[rgba(47,107,58,0.25)] px-2 py-[2px] rounded-full font-semibold">
                               ADMIN
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-[#475569] mt-[2px]">@{u.username}</div>
+                        <div className="text-xs text-[#5C6B57] mt-[2px]">@{u.username}</div>
                       </div>
 
                       {/* Restore button */}
                       <button
-                        className="text-xs px-3 py-[7px] rounded-[10px] border text-emerald-400 border-emerald-500/30 bg-emerald-500/10 active:bg-emerald-500/20 font-semibold"
+                        className="text-xs px-3 py-[7px] rounded-[10px] border text-[#2F6B3A] border-[rgba(47,107,58,0.3)] bg-[rgba(47,107,58,0.1)] active:bg-[rgba(47,107,58,0.18)] font-semibold"
                         onClick={() => setRestoreUserId(u.id)}
                       >
                         ✓ กู้คืน
@@ -360,7 +352,7 @@ function AdminContent() {
               {users.map((u) => (
                 <div
                   key={u.id}
-                  className="rounded-[16px] border border-white/[0.07] bg-white/[0.03] p-4 transition-colors active:bg-white/[0.05]"
+                  className="rounded-[16px] border border-[rgba(47,107,58,0.12)] bg-[#FFFcf5] p-4 transition-colors active:bg-[rgba(47,107,58,0.06)]"
                 >
                   <div className="flex items-center gap-3">
                     {/* Avatar */}
@@ -373,19 +365,19 @@ function AdminContent() {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-[15px] text-[#e2e8f0]">{u.name}</span>
+                        <span className="font-bold text-[15px] text-[#1F2E1C]">{u.name}</span>
                         {u.role === "admin" && (
-                          <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/25 px-2 py-[2px] rounded-full font-semibold">
+                          <span className="text-[10px] bg-[rgba(47,107,58,0.12)] text-[#2F6B3A] border border-[rgba(47,107,58,0.25)] px-2 py-[2px] rounded-full font-semibold">
                             ADMIN
                           </span>
                         )}
                         {!u.is_active && (
-                          <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/25 px-2 py-[2px] rounded-full font-semibold">
+                          <span className="text-[10px] bg-[rgba(196,75,75,0.12)] text-[#C44B4B] border border-[rgba(196,75,75,0.25)] px-2 py-[2px] rounded-full font-semibold">
                             BANNED
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-[#475569] mt-[2px]">@{u.username}</div>
+                      <div className="text-xs text-[#5C6B57] mt-[2px]">@{u.username}</div>
                     </div>
 
                     {/* Actions */}
@@ -394,20 +386,20 @@ function AdminContent() {
                         <button
                           onClick={() => handleToggleActive(u)}
                           className={`text-xs px-3 py-[7px] rounded-[10px] border font-semibold transition-all ${u.is_active
-                            ? "text-amber-400 border-amber-500/30 bg-amber-500/10 active:bg-amber-500/20"
-                            : "text-emerald-400 border-emerald-500/30 bg-emerald-500/10 active:bg-emerald-500/20"
+                            ? "text-[#B8860B] border-[rgba(184,134,11,0.3)] bg-[rgba(184,134,11,0.1)] active:bg-[rgba(184,134,11,0.18)]"
+                            : "text-[#2F6B3A] border-[rgba(47,107,58,0.3)] bg-[rgba(47,107,58,0.1)] active:bg-[rgba(47,107,58,0.18)]"
                             }`}
                         >
                           {u.is_active ? "Ban" : "Unban"}
                         </button>
                         <button
-                          className="text-xs px-3 py-[7px] rounded-[10px] border text-blue-400 border-blue-500/30 bg-blue-500/10 active:bg-blue-500/20 font-semibold"
+                          className="text-xs px-3 py-[7px] rounded-[10px] border text-[#2F6B3A] border-[rgba(47,107,58,0.3)] bg-[rgba(47,107,58,0.1)] active:bg-[rgba(47,107,58,0.18)] font-semibold"
                           onClick={() => handleEditClick(u)}
                         >
                           แก้ไข
                         </button>
                         <button
-                          className="text-xs px-3 py-[7px] rounded-[10px] border text-red-400 border-red-500/30 bg-red-500/10 active:bg-red-500/20 font-semibold"
+                          className="text-xs px-3 py-[7px] rounded-[10px] border text-[#C44B4B] border-[rgba(196,75,75,0.3)] bg-[rgba(196,75,75,0.1)] active:bg-[rgba(196,75,75,0.12)] font-semibold"
                           onClick={() => setDeleteUserId(u.id)}
                           title="ลบผู้ใช้ (soft delete)"
                         >
@@ -416,7 +408,7 @@ function AdminContent() {
                       </div>
                     )}
                     {u.id === currentUser?.id && (
-                      <span className="text-[10px] text-[#374560] bg-white/[0.04] border border-white/[0.06] px-2 py-1 rounded-full">
+                      <span className="text-[10px] text-[#8A9784] bg-[rgba(47,107,58,0.06)] border border-[rgba(47,107,58,0.12)] px-2 py-1 rounded-full">
                         คุณ
                       </span>
                     )}
@@ -430,22 +422,22 @@ function AdminContent() {
           {showCreateForm && (
             <div className="overlay" onClick={() => setShowCreateForm(false)}>
               <div className="modal" onClick={(e) => e.stopPropagation()}>
-                <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mb-5" />
+                <div className="w-10 h-1 bg-[rgba(47,107,58,0.2)] rounded-full mx-auto mb-5" />
                 <h3 className="font-bold text-lg mb-1">เพิ่มผู้ใช้ใหม่</h3>
-                <p className="text-xs text-[#475569] mb-5">กรอกข้อมูลสำหรับบัญชีใหม่</p>
+                <p className="text-xs text-[#5C6B57] mb-5">กรอกข้อมูลสำหรับบัญชีใหม่</p>
                 <div className="flex flex-col gap-4">
                   <div>
-                    <label className="text-xs text-[#64748b] mb-[6px] block font-semibold">ชื่อผู้ใช้ (username) *</label>
+                    <label className="text-xs text-[#5C6B57] mb-[6px] block font-semibold">ชื่อผู้ใช้ (username) *</label>
                     <input
                       className="inp"
                       placeholder="เช่น john_doe"
                       value={createForm.username}
                       onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
                     />
-                    <p className="text-[10px] text-[#374560] mt-[6px]">3–50 ตัว, a-z, 0-9, _ หรือ -</p>
+                    <p className="text-[10px] text-[#8A9784] mt-[6px]">3–50 ตัว, a-z, 0-9, _ หรือ -</p>
                   </div>
                   <div>
-                    <label className="text-xs text-[#64748b] mb-[6px] block font-semibold">รหัสผ่าน *</label>
+                    <label className="text-xs text-[#5C6B57] mb-[6px] block font-semibold">รหัสผ่าน *</label>
                     <input
                       className="inp"
                       type="password"
@@ -455,7 +447,7 @@ function AdminContent() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-[#64748b] mb-[6px] block font-semibold">ชื่อ-นามสกุล *</label>
+                    <label className="text-xs text-[#5C6B57] mb-[6px] block font-semibold">ชื่อ-นามสกุล *</label>
                     <input
                       className="inp"
                       placeholder="ชื่อที่แสดงในระบบ"
@@ -464,15 +456,15 @@ function AdminContent() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-[#64748b] mb-[6px] block font-semibold">บทบาท</label>
+                    <label className="text-xs text-[#5C6B57] mb-[6px] block font-semibold">บทบาท</label>
                     <div className="flex gap-3">
                       {(["user", "admin"] as const).map((r) => (
                         <button
                           key={r}
                           onClick={() => setCreateForm({ ...createForm, role: r })}
                           className={`flex-1 py-3 rounded-[12px] text-sm font-semibold transition-all ${createForm.role === r
-                            ? "bg-blue-500/20 border-2 border-blue-500 text-blue-400"
-                            : "bg-white/[0.04] border-2 border-white/10 text-[#64748b]"
+                            ? "bg-[rgba(47,107,58,0.12)] border-2 border-[#2F6B3A] text-[#2F6B3A]"
+                            : "bg-[rgba(47,107,58,0.06)] border-2 border-[rgba(47,107,58,0.15)] text-[#5C6B57]"
                             }`}
                         >
                           {r === "user" ? "👤 User" : "⚙️ Admin"}
@@ -499,7 +491,7 @@ function AdminContent() {
           {editingUser && (
             <div className="overlay" onClick={() => setEditingUser(null)}>
               <div className="modal" onClick={(e) => e.stopPropagation()}>
-                <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mb-5" />
+                <div className="w-10 h-1 bg-[rgba(47,107,58,0.2)] rounded-full mx-auto mb-5" />
                 <div className="flex items-center gap-3 mb-5">
                   <div
                     className={`w-12 h-12 rounded-full bg-gradient-to-br ${avatarColor(editingUser.name)} flex items-center justify-center text-white font-bold`}
@@ -508,12 +500,12 @@ function AdminContent() {
                   </div>
                   <div>
                     <h3 className="font-bold text-base">แก้ไขผู้ใช้</h3>
-                    <p className="text-xs text-[#475569]">@{editingUser.username}</p>
+                    <p className="text-xs text-[#5C6B57]">@{editingUser.username}</p>
                   </div>
                 </div>
                 <div className="flex flex-col gap-4">
                   <div>
-                    <label className="text-xs text-[#64748b] mb-[6px] block font-semibold">ชื่อ-นามสกุล *</label>
+                    <label className="text-xs text-[#5C6B57] mb-[6px] block font-semibold">ชื่อ-นามสกุล *</label>
                     <input
                       className="inp"
                       placeholder="ชื่อที่แสดงในระบบ"
@@ -522,7 +514,7 @@ function AdminContent() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-[#64748b] mb-[6px] block font-semibold">รหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)</label>
+                    <label className="text-xs text-[#5C6B57] mb-[6px] block font-semibold">รหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)</label>
                     <input
                       className="inp"
                       type="password"
@@ -530,18 +522,18 @@ function AdminContent() {
                       value={editForm.password}
                       onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
                     />
-                    <p className="text-[10px] text-[#374560] mt-[6px]">อย่างน้อย 6 ตัวอักษร (ถ้ากรอก)</p>
+                    <p className="text-[10px] text-[#8A9784] mt-[6px]">อย่างน้อย 6 ตัวอักษร (ถ้ากรอก)</p>
                   </div>
                   <div>
-                    <label className="text-xs text-[#64748b] mb-[6px] block font-semibold">บทบาท</label>
+                    <label className="text-xs text-[#5C6B57] mb-[6px] block font-semibold">บทบาท</label>
                     <div className="flex gap-3">
                       {(["user", "admin"] as const).map((r) => (
                         <button
                           key={r}
                           onClick={() => setEditForm({ ...editForm, role: r })}
                           className={`flex-1 py-3 rounded-[12px] text-sm font-semibold transition-all ${editForm.role === r
-                            ? "bg-blue-500/20 border-2 border-blue-500 text-blue-400"
-                            : "bg-white/[0.04] border-2 border-white/10 text-[#64748b]"
+                            ? "bg-[rgba(47,107,58,0.12)] border-2 border-[#2F6B3A] text-[#2F6B3A]"
+                            : "bg-[rgba(47,107,58,0.06)] border-2 border-[rgba(47,107,58,0.15)] text-[#5C6B57]"
                             }`}
                         >
                           {r === "user" ? "👤 User" : "⚙️ Admin"}
@@ -571,10 +563,10 @@ function AdminContent() {
         <div>
           {/* Filter card */}
           <div className="card mb-5">
-            <p className="text-xs font-semibold text-[#475569] mb-3">ช่วงเวลา</p>
+            <p className="text-xs font-semibold text-[#5C6B57] mb-3">ช่วงเวลา</p>
             <div className="flex gap-3 items-center mb-4">
               <div className="flex-1">
-                <label className="text-[11px] text-[#374560] block mb-[6px]">เริ่มต้น</label>
+                <label className="text-[11px] text-[#8A9784] block mb-[6px]">เริ่มต้น</label>
                 <input
                   type="date"
                   className="inp py-[10px] text-sm"
@@ -582,9 +574,9 @@ function AdminContent() {
                   onChange={(e) => setRepStart(e.target.value)}
                 />
               </div>
-              <div className="text-[#374560] mt-5 text-sm">→</div>
+              <div className="text-[#8A9784] mt-5 text-sm">→</div>
               <div className="flex-1">
-                <label className="text-[11px] text-[#374560] block mb-[6px]">สิ้นสุด</label>
+                <label className="text-[11px] text-[#8A9784] block mb-[6px]">สิ้นสุด</label>
                 <input
                   type="date"
                   className="inp py-[10px] text-sm"
@@ -618,34 +610,34 @@ function AdminContent() {
                 const grandOtherCount = report.grand_other_count ?? 0;
                 return (
                   <div className="mb-5">
-                    <p className="text-xs font-semibold text-[#475569] mb-3">ภาพรวมทั้งหมด</p>
+                    <p className="text-xs font-semibold text-[#5C6B57] mb-3">ภาพรวมทั้งหมด</p>
                     <div className="grid grid-cols-3 gap-2">
-                      {/* รวมไม้ */}
+                      {/* รวมขึ้นเอ็น */}
                       <div
                         className="rounded-[16px] p-4 flex flex-col"
-                        style={{ background: "linear-gradient(135deg,rgba(59,130,246,0.15),rgba(59,130,246,0.06))", border: "1px solid rgba(59,130,246,0.2)" }}
+                        style={{ background: "linear-gradient(135deg,rgba(47,107,58,0.15),rgba(47,107,58,0.06))", border: "1px solid rgba(47,107,58,0.2)" }}
                       >
-                        <div className="text-blue-400 text-lg mb-1">🎾</div>
-                        <div className="num text-lg font-bold text-blue-400 leading-tight">{report.grand_count} ไม้</div>
-                        <div className="text-[11px] text-[#475569] mt-1 font-semibold">รวมไม้</div>
+                        <div className="text-[#2F6B3A] text-lg mb-1">🎾</div>
+                        <div className="num text-lg font-bold text-[#2F6B3A] leading-tight">{report.grand_count} รายการ</div>
+                        <div className="text-[11px] text-[#5C6B57] mt-1 font-semibold">ขึ้นเอ็น</div>
                       </div>
                       {/* รายรับเอ็น */}
                       <div
                         className="rounded-[16px] p-4 flex flex-col"
-                        style={{ background: "linear-gradient(135deg,rgba(34,197,94,0.15),rgba(34,197,94,0.06))", border: "1px solid rgba(34,197,94,0.2)" }}
+                        style={{ background: "linear-gradient(135deg,rgba(47,107,58,0.15),rgba(47,107,58,0.06))", border: "1px solid rgba(47,107,58,0.2)" }}
                       >
-                        <div className="text-emerald-400 text-lg mb-1">🧵</div>
-                        <div className="num text-lg font-bold text-emerald-400 leading-tight">฿{fmtMoney(report.grand_total)}</div>
-                        <div className="text-[11px] text-[#475569] mt-1 font-semibold">รายรับเอ็น</div>
+                        <div className="text-[#2F6B3A] text-lg mb-1">🧵</div>
+                        <div className="num text-lg font-bold text-[#2F6B3A] leading-tight">฿{fmtMoney(report.grand_total)}</div>
+                        <div className="text-[11px] text-[#5C6B57] mt-1 font-semibold">รายรับเอ็น</div>
                       </div>
-                      {/* ขายไม้ */}
+                      {/* ค่าคอม */}
                       <div
                         className="rounded-[16px] p-4 flex flex-col"
-                        style={{ background: "linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.06))", border: "1px solid rgba(245,158,11,0.2)" }}
+                        style={{ background: "linear-gradient(135deg,rgba(184,134,11,0.15),rgba(184,134,11,0.06))", border: "1px solid rgba(184,134,11,0.2)" }}
                       >
-                        <div className="text-amber-400 text-lg mb-1">🏸</div>
-                        <div className="num text-lg font-bold text-amber-400 leading-tight">฿{fmtMoney(grandSaleTotal)}</div>
-                        <div className="text-[11px] text-[#475569] mt-1 font-semibold">ขายไม้ ({grandSaleCount})</div>
+                        <div className="text-[#B8860B] text-lg mb-1">🏸</div>
+                        <div className="num text-lg font-bold text-[#B8860B] leading-tight">฿{fmtMoney(grandSaleTotal)}</div>
+                        <div className="text-[11px] text-[#5C6B57] mt-1 font-semibold">ค่าคอม ({grandSaleCount})</div>
                       </div>
                     </div>
 
@@ -653,13 +645,13 @@ function AdminContent() {
                     {grandOtherCount > 0 && (
                       <div
                         className="rounded-[16px] p-4 mt-2 flex items-center justify-between"
-                        style={{ background: "linear-gradient(135deg,rgba(6,182,212,0.12),rgba(6,182,212,0.05))", border: "1px solid rgba(6,182,212,0.2)" }}
+                        style={{ background: "linear-gradient(135deg,rgba(42,122,110,0.12),rgba(42,122,110,0.05))", border: "1px solid rgba(42,122,110,0.2)" }}
                       >
                         <div>
-                          <div className="text-xs text-[#475569] font-semibold">รายได้อื่นๆ</div>
-                          <div className="text-[11px] text-[#374560] mt-[2px]">{grandOtherCount} รายการ</div>
+                          <div className="text-xs text-[#5C6B57] font-semibold">รายได้อื่นๆ</div>
+                          <div className="text-[11px] text-[#8A9784] mt-[2px]">{grandOtherCount} รายการ</div>
                         </div>
-                        <div className="num text-xl font-bold text-cyan-400">
+                        <div className="num text-xl font-bold text-[#2A7A6E]">
                           ฿{fmtMoney(grandOtherTotal)}
                         </div>
                       </div>
@@ -668,13 +660,13 @@ function AdminContent() {
                     {/* Total revenue */}
                     <div
                       className="rounded-[16px] p-4 mt-2 flex items-center justify-between"
-                      style={{ background: "linear-gradient(135deg,rgba(167,139,250,0.12),rgba(139,92,246,0.06))", border: "1px solid rgba(167,139,250,0.2)" }}
+                      style={{ background: "linear-gradient(135deg,rgba(47,107,58,0.12),rgba(31,77,40,0.06))", border: "1px solid rgba(47,107,58,0.2)" }}
                     >
                       <div>
-                        <div className="text-xs text-[#475569] font-semibold">รายรับรวมทั้งหมด</div>
-                        <div className="text-[11px] text-[#374560] mt-[2px]">เอ็น + ขายไม้{grandOtherCount > 0 ? " + อื่นๆ" : ""}</div>
+                        <div className="text-xs text-[#5C6B57] font-semibold">รายรับรวมทั้งหมด</div>
+                        <div className="text-[11px] text-[#8A9784] mt-[2px]">เอ็น + ค่าคอม{grandOtherCount > 0 ? " + อื่นๆ" : ""}</div>
                       </div>
-                      <div className="num text-2xl font-bold text-purple-400">
+                      <div className="num text-2xl font-bold text-[#1F4D28]">
                         ฿{fmtMoney(report.grand_total + grandSaleTotal + grandOtherTotal)}
                       </div>
                     </div>
@@ -683,12 +675,12 @@ function AdminContent() {
               })()}
 
               {/* Per-user */}
-              <p className="text-xs font-semibold text-[#475569] mb-3">รายละเอียดแต่ละคน ({report.users.length} คน)</p>
+              <p className="text-xs font-semibold text-[#5C6B57] mb-3">รายละเอียดแต่ละคน ({report.users.length} คน)</p>
               <div className="flex flex-col gap-3">
                 {report.users.map((u) => (
                   <div
                     key={u.user_id}
-                    className="rounded-[16px] border border-white/[0.07] bg-white/[0.03] p-4"
+                    className="rounded-[16px] border border-[rgba(47,107,58,0.12)] bg-[#FFFcf5] p-4"
                   >
                     {/* User header */}
                     <div className="flex items-center justify-between mb-3">
@@ -699,13 +691,13 @@ function AdminContent() {
                           {initials(u.name)}
                         </div>
                         <div>
-                          <div className="font-bold text-[15px] text-[#e2e8f0]">{u.name}</div>
-                          <div className="text-xs text-[#475569]">@{u.username}</div>
+                          <div className="font-bold text-[15px] text-[#1F2E1C]">{u.name}</div>
+                          <div className="text-xs text-[#5C6B57]">@{u.username}</div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="num text-xl font-bold text-purple-400">฿{fmtMoney(u.total + u.sale_total + (u.other_total ?? 0))}</div>
-                        <div className="text-[10px] text-[#475569]">รวมทั้งหมด</div>
+                        <div className="num text-xl font-bold text-[#1F4D28]">฿{fmtMoney(u.total + u.sale_total + (u.other_total ?? 0))}</div>
+                        <div className="text-[10px] text-[#5C6B57]">รวมทั้งหมด</div>
                       </div>
                     </div>
 
@@ -713,30 +705,30 @@ function AdminContent() {
                     <div className="flex gap-2">
                       <div
                         className="flex-1 rounded-[12px] p-3"
-                        style={{ background: "rgba(59,130,246,0.07)", border: "1px solid rgba(59,130,246,0.14)" }}
+                        style={{ background: "rgba(47,107,58,0.07)", border: "1px solid rgba(47,107,58,0.14)" }}
                       >
                         <div className="flex items-center gap-1 mb-[6px]">
                           <span className="text-[10px]">🧵</span>
-                          <span className="text-[11px] text-[#475569] font-semibold">เอ็น</span>
+                          <span className="text-[11px] text-[#5C6B57] font-semibold">เอ็น</span>
                         </div>
-                        <div className="num text-base font-bold text-blue-400">{u.count} ไม้</div>
-                        <div className="num text-sm text-blue-300 mt-[1px]">฿{fmtMoney(u.total)}</div>
-                        <div className="text-[10px] text-[#374560] mt-1">
+                        <div className="num text-base font-bold text-[#2F6B3A]">{u.count} รายการ</div>
+                        <div className="num text-sm text-[#5B9A4A] mt-[1px]">฿{fmtMoney(u.total)}</div>
+                        <div className="text-[10px] text-[#8A9784] mt-1">
                           ฿200 × {u.count_200} · ฿300 × {u.count_300}
                         </div>
                       </div>
                       <div
                         className="flex-1 rounded-[12px] p-3"
-                        style={{ background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.14)" }}
+                        style={{ background: "rgba(184,134,11,0.07)", border: "1px solid rgba(184,134,11,0.14)" }}
                       >
                         <div className="flex items-center gap-1 mb-[6px]">
                           <span className="text-[10px]">🏸</span>
-                          <span className="text-[11px] text-[#475569] font-semibold">ขายไม้</span>
+                          <span className="text-[11px] text-[#5C6B57] font-semibold">ค่าคอม</span>
                         </div>
-                        <div className="num text-base font-bold text-amber-400">{u.sale_count} ไม้</div>
-                        <div className="num text-sm text-amber-300 mt-[1px]">฿{fmtMoney(u.sale_total)}</div>
-                        <div className="text-[10px] text-[#374560] mt-1">
-                          {u.sale_count > 0 ? `เฉลี่ย ฿${fmtMoney(Math.round(u.sale_total / u.sale_count))} / ไม้` : "ยังไม่มี"}
+                        <div className="num text-base font-bold text-[#B8860B]">{u.sale_count} รายการ</div>
+                        <div className="num text-sm text-[#C9A227] mt-[1px]">฿{fmtMoney(u.sale_total)}</div>
+                        <div className="text-[10px] text-[#8A9784] mt-1">
+                          {u.sale_count > 0 ? `เฉลี่ย ฿${fmtMoney(Math.round(u.sale_total / u.sale_count))} / รายการ` : "ยังไม่มี"}
                         </div>
                       </div>
                     </div>
@@ -745,13 +737,13 @@ function AdminContent() {
                     {(u.other_count ?? 0) > 0 && (
                       <div
                         className="rounded-[12px] p-3 mt-2 flex items-center justify-between"
-                        style={{ background: "rgba(6,182,212,0.07)", border: "1px solid rgba(6,182,212,0.14)" }}
+                        style={{ background: "rgba(42,122,110,0.07)", border: "1px solid rgba(42,122,110,0.14)" }}
                       >
                         <div className="flex items-center gap-1">
                           <span className="text-[10px]">💰</span>
-                          <span className="text-[11px] text-[#475569] font-semibold">รายได้อื่นๆ ({u.other_count} รายการ)</span>
+                          <span className="text-[11px] text-[#5C6B57] font-semibold">รายได้อื่นๆ ({u.other_count} รายการ)</span>
                         </div>
-                        <div className="num text-base font-bold text-cyan-400">฿{fmtMoney(u.other_total)}</div>
+                        <div className="num text-base font-bold text-[#2A7A6E]">฿{fmtMoney(u.other_total)}</div>
                       </div>
                     )}
                   </div>

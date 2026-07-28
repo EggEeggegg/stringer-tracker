@@ -2,13 +2,25 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { BrandLogo } from "@/components/BrandLogo";
 import { RecordCard } from "@/components/RecordCard";
 import { RecordForm } from "@/components/RecordForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { RecordListSkeleton, StatGridSkeleton } from "@/components/Skeleton";
 import { toast } from "@/components/Toast";
 import { recordsApi } from "@/lib/api";
 import { today, fmtDateShort, fmtMoney } from "@/lib/utils";
-import type { Record } from "@/types";
+import type { Record, RecordType } from "@/types";
+import { isOtherIncome } from "@/types";
+
+type RecordFormInput = {
+  record_type: RecordType;
+  racket: string;
+  string1: string;
+  string2: string;
+  price: number;
+  note: string;
+};
 
 export default function DailyPage() {
   const searchParams = useSearchParams();
@@ -47,19 +59,15 @@ export default function DailyPage() {
   }, [selDate, loadRecords]);
 
   const stringRecords = records.filter((record) => record.record_type === "string");
-  const otherRecords = records.filter((record) => record.record_type === "other");
+  const saleRecords = records.filter((record) => record.record_type === "sale");
+  const otherRecords = records.filter((record) => isOtherIncome(record.record_type));
   const stringTotal = stringRecords.reduce((sum, record) => sum + record.price, 0);
+  const saleTotal = saleRecords.reduce((sum, record) => sum + record.price, 0);
   const otherTotal = otherRecords.reduce((sum, record) => sum + record.price, 0);
-  const dayTotal = stringTotal + otherTotal;
-  const saleCount = stringRecords.filter((record) => record.is_new_racket).length;
-  const saleTotal = saleCount * 200;
+  const dayTotal = stringTotal + otherTotal + saleTotal;
+  const saleCount = saleRecords.length;
 
-  const handleCreate = async (
-    data: Omit<Record, "id" | "user_id" | "date" | "seq" | "created_at" | "updated_at"> & {
-      record_type: "string" | "other";
-      activity_name: string;
-    }
-  ) => {
+  const handleCreate = async (data: RecordFormInput) => {
     setSaving(true);
     try {
       const created = await recordsApi.create({ date: selDate, ...data });
@@ -76,12 +84,7 @@ export default function DailyPage() {
     }
   };
 
-  const handleUpdate = async (
-    data: Omit<Record, "id" | "user_id" | "date" | "seq" | "created_at" | "updated_at"> & {
-      record_type: "string" | "other";
-      activity_name: string;
-    }
-  ) => {
+  const handleUpdate = async (data: RecordFormInput) => {
     if (!editRecord) return;
     setSaving(true);
     try {
@@ -111,18 +114,9 @@ export default function DailyPage() {
   return (
     <div className="max-w-lg mx-auto px-3 pt-4">
       <div className="text-center py-2 pb-4">
-        <div className="text-3xl">Tennis</div>
-        <h1
-          className="num text-xl"
-          style={{
-            background: "linear-gradient(135deg,#60a5fa,#a78bfa)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          String Tracker
-        </h1>
-        <p className="text-[#374560] text-xs">บันทึกการขึ้นเอ็นเทนนิส</p>
+        <BrandLogo size="sm" />
+        <h1 className="brand-title text-xl">String Tracker</h1>
+        <p className="text-[#8A9784] text-xs mt-1">บันทึกการขึ้นเอ็นเทนนิส</p>
       </div>
 
       <div className="mb-4">
@@ -160,52 +154,55 @@ export default function DailyPage() {
       {records.length > 0 && (
         <div className="grid grid-cols-2 gap-2 mb-4">
           <div className="stat-card">
-            <div className="text-[#475569] text-[10px] font-semibold">ไม้</div>
-            <div className="num text-xl mt-1" style={{ color: "#e2e8f0" }}>{stringRecords.length}</div>
+            <div className="text-[#5C6B57] text-[10px] font-semibold">ขึ้นเอ็น</div>
+            <div className="num text-xl mt-1 text-[#1F2E1C]">{stringRecords.length}</div>
           </div>
           <div className="stat-card">
-            <div className="text-[#475569] text-[10px] font-semibold">รายได้ขึ้นเอ็น</div>
-            <div className="num text-xl mt-1" style={{ color: "#22c55e" }}>฿{fmtMoney(stringTotal)}</div>
+            <div className="text-[#5C6B57] text-[10px] font-semibold">รายได้ขึ้นเอ็น</div>
+            <div className="num text-xl mt-1 text-[#2F6B3A]">฿{fmtMoney(stringTotal)}</div>
           </div>
           {saleCount > 0 && (
             <>
               <div className="stat-card">
-                <div className="text-[#475569] text-[10px] font-semibold">ขายไม้ได้</div>
-                <div className="num text-xl mt-1" style={{ color: "#e2e8f0" }}>{saleCount}</div>
+                <div className="text-[#5C6B57] text-[10px] font-semibold">จำนวนค่าคอม</div>
+                <div className="num text-xl mt-1 text-[#1F2E1C]">{saleCount}</div>
               </div>
               <div className="stat-card">
-                <div className="text-[#475569] text-[10px] font-semibold">ค่าคอม</div>
-                <div className="num text-xl mt-1" style={{ color: "#f59e0b" }}>฿{fmtMoney(saleTotal)}</div>
+                <div className="text-[#5C6B57] text-[10px] font-semibold">ยอดค่าคอม</div>
+                <div className="num text-xl mt-1 text-[#B8860B]">฿{fmtMoney(saleTotal)}</div>
               </div>
             </>
           )}
           {otherRecords.length > 0 && (
             <>
               <div className="stat-card">
-                <div className="text-[#475569] text-[10px] font-semibold">รายการอื่นๆ</div>
-                <div className="num text-xl mt-1" style={{ color: "#e2e8f0" }}>{otherRecords.length}</div>
+                <div className="text-[#5C6B57] text-[10px] font-semibold">รายการอื่นๆ</div>
+                <div className="num text-xl mt-1 text-[#1F2E1C]">{otherRecords.length}</div>
               </div>
               <div className="stat-card">
-                <div className="text-[#475569] text-[10px] font-semibold">รายได้อื่นๆ</div>
-                <div className="num text-xl mt-1" style={{ color: "#06b6d4" }}>฿{fmtMoney(otherTotal)}</div>
+                <div className="text-[#5C6B57] text-[10px] font-semibold">รายได้อื่นๆ</div>
+                <div className="num text-xl mt-1 text-[#2A7A6E]">฿{fmtMoney(otherTotal)}</div>
               </div>
             </>
           )}
-          {otherRecords.length > 0 && (
+          {(otherRecords.length > 0 || saleCount > 0) && (
             <div className="stat-card col-span-2">
-              <div className="text-[#475569] text-[10px] font-semibold">รวมทั้งหมด</div>
-              <div className="num text-xl mt-1" style={{ color: "#a78bfa" }}>฿{fmtMoney(dayTotal)}</div>
+              <div className="text-[#5C6B57] text-[10px] font-semibold">รวมทั้งหมด</div>
+              <div className="num text-xl mt-1 text-[#1F4D28]">฿{fmtMoney(dayTotal)}</div>
             </div>
           )}
         </div>
       )}
 
       {loading ? (
-        <div className="text-center text-[#374560] text-sm py-8">กำลังโหลด...</div>
+        <>
+          <StatGridSkeleton />
+          <RecordListSkeleton rows={3} />
+        </>
       ) : records.length === 0 ? (
         <div className="card text-center py-12">
-          <div className="text-[#475569] text-sm font-semibold">ยังไม่มีรายการ</div>
-          <div className="text-[#2d3a52] text-xs mt-1">กดปุ่ม + ด้านล่างเพื่อเพิ่ม</div>
+          <div className="text-[#5C6B57] text-sm font-semibold">ยังไม่มีรายการ</div>
+          <div className="text-[#8A9784] text-xs mt-1">กดปุ่ม + ด้านล่างเพื่อเพิ่ม</div>
         </div>
       ) : (
         records.map((record) => (

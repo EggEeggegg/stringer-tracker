@@ -11,6 +11,28 @@ import (
 	"tennis-tracker/internal/model"
 )
 
+const otherIncomeFilter = "record_type IN ('demo', 'grip', 'other')"
+
+func validateRecordInput(recordType string, price int) string {
+	switch recordType {
+	case "string":
+		if price != 200 && price != 300 {
+			return "price must be 200 or 300 for string type"
+		}
+	case "sale":
+		if price != 200 && price != 500 {
+			return "price must be 200 or 500 for sale type"
+		}
+	case "demo", "grip", "other":
+		if price <= 0 {
+			return "price must be greater than 0"
+		}
+	default:
+		return "record_type must be 'string', 'sale', 'demo', 'grip', or 'other'"
+	}
+	return ""
+}
+
 // GET /api/records?date=YYYY-MM-DD  OR  ?start=&end=
 func (h *Handler) ListRecords(c *gin.Context) {
 	userID := c.GetString("userID")
@@ -50,19 +72,8 @@ func (h *Handler) CreateRecord(c *gin.Context) {
 		input.RecordType = "string"
 	}
 
-	switch input.RecordType {
-	case "string":
-		if input.Price != 200 && input.Price != 300 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "price must be 200 or 300 for string type"})
-			return
-		}
-	case "other":
-		if input.ActivityName == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "activity_name is required for other type"})
-			return
-		}
-	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "record_type must be 'string' or 'other'"})
+	if msg := validateRecordInput(input.RecordType, input.Price); msg != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 
@@ -79,17 +90,15 @@ func (h *Handler) CreateRecord(c *gin.Context) {
 		Scan(&maxSeq)
 
 	record := model.Record{
-		UserID:       userID,
-		Date:         parsedDate,
-		Seq:          maxSeq + 1,
-		RecordType:   input.RecordType,
-		Racket:       input.Racket,
-		String1:      input.String1,
-		String2:      input.String2,
-		Price:        input.Price,
-		IsNewRacket:  input.IsNewRacket,
-		ActivityName: input.ActivityName,
-		Note:         input.Note,
+		UserID:     userID,
+		Date:       parsedDate,
+		Seq:        maxSeq + 1,
+		RecordType: input.RecordType,
+		Racket:     input.Racket,
+		String1:    input.String1,
+		String2:    input.String2,
+		Price:      input.Price,
+		Note:       input.Note,
 	}
 
 	if err := h.db.Create(&record).Error; err != nil {
@@ -123,19 +132,8 @@ func (h *Handler) UpdateRecord(c *gin.Context) {
 		input.RecordType = record.RecordType
 	}
 
-	switch input.RecordType {
-	case "string":
-		if input.Price != 200 && input.Price != 300 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "price must be 200 or 300 for string type"})
-			return
-		}
-	case "other":
-		if input.ActivityName == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "activity_name is required for other type"})
-			return
-		}
-	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "record_type must be 'string' or 'other'"})
+	if msg := validateRecordInput(input.RecordType, input.Price); msg != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 
@@ -144,8 +142,6 @@ func (h *Handler) UpdateRecord(c *gin.Context) {
 	record.String1 = input.String1
 	record.String2 = input.String2
 	record.Price = input.Price
-	record.IsNewRacket = input.IsNewRacket
-	record.ActivityName = input.ActivityName
 	record.Note = input.Note
 
 	if err := h.db.Save(&record).Error; err != nil {
@@ -202,12 +198,12 @@ func (h *Handler) DailySummary(c *gin.Context) {
 	sql := `SELECT date,
 	               COUNT(*)::int                                             AS count,
 	               SUM(price)::int                                           AS total,
-	               COUNT(*) FILTER (WHERE is_new_racket)::int                AS sale_count,
-	               (COUNT(*) FILTER (WHERE is_new_racket) * ?)::int          AS sale_total,
-	               COUNT(*) FILTER (WHERE record_type = 'other')::int        AS other_count,
-	               COALESCE(SUM(price) FILTER (WHERE record_type = 'other'), 0)::int AS other_total
+	               COUNT(*) FILTER (WHERE record_type = 'sale')::int         AS sale_count,
+	               COALESCE(SUM(price) FILTER (WHERE record_type = 'sale'), 0)::int AS sale_total,
+	               COUNT(*) FILTER (WHERE ` + otherIncomeFilter + `)::int        AS other_count,
+	               COALESCE(SUM(price) FILTER (WHERE ` + otherIncomeFilter + `), 0)::int AS other_total
 	          FROM records WHERE user_id = ?`
-	args := []any{model.NewRacketCommission, userID}
+	args := []any{userID}
 
 	if start != "" {
 		sql += " AND date >= ?"
@@ -257,12 +253,12 @@ func (h *Handler) MonthlySummary(c *gin.Context) {
 	sql := `SELECT TO_CHAR(date, 'YYYY-MM')                                        AS month,
 	               COUNT(*)::int                                                    AS count,
 	               SUM(price)::int                                                  AS total,
-	               COUNT(*) FILTER (WHERE is_new_racket)::int                       AS sale_count,
-	               (COUNT(*) FILTER (WHERE is_new_racket) * ?)::int                 AS sale_total,
-	               COUNT(*) FILTER (WHERE record_type = 'other')::int               AS other_count,
-	               COALESCE(SUM(price) FILTER (WHERE record_type = 'other'), 0)::int AS other_total
+	               COUNT(*) FILTER (WHERE record_type = 'sale')::int                AS sale_count,
+	               COALESCE(SUM(price) FILTER (WHERE record_type = 'sale'), 0)::int AS sale_total,
+	               COUNT(*) FILTER (WHERE ` + otherIncomeFilter + `)::int               AS other_count,
+	               COALESCE(SUM(price) FILTER (WHERE ` + otherIncomeFilter + `), 0)::int AS other_total
 	          FROM records WHERE user_id = ?`
-	args := []any{model.NewRacketCommission, userID}
+	args := []any{userID}
 
 	if year != "" {
 		sql += " AND EXTRACT(YEAR FROM date) = ?"
@@ -319,6 +315,7 @@ func (h *Handler) ExportRecordsExcel(c *gin.Context) {
 	var stringCount int
 	var stringTotal int
 	var saleCount int
+	var saleTotal int
 	var otherCount int
 	var otherTotal int
 
@@ -326,10 +323,10 @@ func (h *Handler) ExportRecordsExcel(c *gin.Context) {
 		if rec.RecordType == "string" || rec.RecordType == "" {
 			stringCount++
 			stringTotal += rec.Price
-			if rec.IsNewRacket {
-				saleCount++
-			}
-		} else if rec.RecordType == "other" {
+		} else if rec.RecordType == "sale" {
+			saleCount++
+			saleTotal += rec.Price
+		} else if model.IsOtherIncome(rec.RecordType) {
 			otherCount++
 			otherTotal += rec.Price
 		}
@@ -354,11 +351,11 @@ func (h *Handler) ExportRecordsExcel(c *gin.Context) {
 	f.SetCellValue(summarySheet, fmt.Sprintf("F%d", row), "บาท")
 	row++
 
-	totalRevenue := stringTotal + (saleCount * model.NewRacketCommission) + otherTotal
+	totalRevenue := stringTotal + saleTotal + otherTotal
 	f.SetCellValue(summarySheet, fmt.Sprintf("A%d", row), stringCount)
 	f.SetCellValue(summarySheet, fmt.Sprintf("B%d", row), stringTotal)
 	f.SetCellValue(summarySheet, fmt.Sprintf("C%d", row), saleCount)
-	f.SetCellValue(summarySheet, fmt.Sprintf("D%d", row), saleCount*model.NewRacketCommission)
+	f.SetCellValue(summarySheet, fmt.Sprintf("D%d", row), saleTotal)
 	f.SetCellValue(summarySheet, fmt.Sprintf("E%d", row), otherTotal)
 	f.SetCellValue(summarySheet, fmt.Sprintf("F%d", row), totalRevenue)
 
@@ -376,7 +373,7 @@ func (h *Handler) ExportRecordsExcel(c *gin.Context) {
 	f.SetCellValue(recordsSheet, fmt.Sprintf("D%d", row), "String 1")
 	f.SetCellValue(recordsSheet, fmt.Sprintf("E%d", row), "String 2")
 	f.SetCellValue(recordsSheet, fmt.Sprintf("F%d", row), "ราคา (บาท)")
-	f.SetCellValue(recordsSheet, fmt.Sprintf("G%d", row), "ไม้ใหม่")
+	f.SetCellValue(recordsSheet, fmt.Sprintf("G%d", row), "-")
 	f.SetCellValue(recordsSheet, fmt.Sprintf("H%d", row), "หมายเหตุ")
 	row++
 
@@ -390,16 +387,12 @@ func (h *Handler) ExportRecordsExcel(c *gin.Context) {
 		if recordType == "" {
 			recordType = "string"
 		}
-		displayType := "ขึ้นเอ็น"
-		if recordType == "other" {
-			displayType = "อื่นๆ"
-		}
-		f.SetCellValue(recordsSheet, fmt.Sprintf("B%d", row), displayType)
+		f.SetCellValue(recordsSheet, fmt.Sprintf("B%d", row), model.RecordTypeLabel(recordType))
 
 		// ไม้/กิจกรรม
 		name := rec.Racket
-		if recordType == "other" {
-			name = rec.ActivityName
+		if recordType != "string" {
+			name = model.RecordTypeLabel(recordType)
 		}
 		f.SetCellValue(recordsSheet, fmt.Sprintf("C%d", row), name)
 
@@ -412,12 +405,8 @@ func (h *Handler) ExportRecordsExcel(c *gin.Context) {
 		// ราคา
 		f.SetCellValue(recordsSheet, fmt.Sprintf("F%d", row), rec.Price)
 
-		// ไม้ใหม่
-		isNewRacketStr := ""
-		if rec.IsNewRacket {
-			isNewRacketStr = "ใช่"
-		}
-		f.SetCellValue(recordsSheet, fmt.Sprintf("G%d", row), isNewRacketStr)
+		// reserved column (legacy)
+		f.SetCellValue(recordsSheet, fmt.Sprintf("G%d", row), "")
 
 		// หมายเหตุ
 		f.SetCellValue(recordsSheet, fmt.Sprintf("H%d", row), rec.Note)
@@ -493,8 +482,10 @@ func (h *Handler) CopyJobsList(c *gin.Context) {
 			// Replace slashes with spaces and collapse whitespace
 			name = strings.ReplaceAll(name, "/", " ")
 			name = strings.Join(strings.Fields(name), " ")
+		} else if rec.RecordType == "sale" {
+			name = fmt.Sprintf("[ขายไม้] %s", model.RecordTypeLabel("sale"))
 		} else {
-			name = rec.ActivityName
+			name = model.RecordTypeLabel(rec.RecordType)
 		}
 
 		if rec.Note != "" {

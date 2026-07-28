@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import type { Record } from "@/types";
+import type { Record, RecordType } from "@/types";
+import { RECORD_TYPE_LABELS } from "@/types";
 import { fmtDate } from "@/lib/utils";
 import { useState } from "react";
 
@@ -8,38 +9,43 @@ interface Props {
   date: string;
   initial?: Partial<Record>;
   onSubmit: (data: {
-    record_type: "string" | "other";
+    record_type: RecordType;
     racket: string;
     string1: string;
     string2: string;
     price: number;
-    is_new_racket: boolean;
-    activity_name: string;
     note: string;
   }) => Promise<void>;
   onClose: () => void;
   loading?: boolean;
 }
 
-const ACTIVITY_OPTIONS = [
-  "ค่าบริการ Demo ไม้เทนนิส",
-  "พัน Grip",
-  "อื่นๆ",
+const TYPE_TABS: { value: RecordType; label: string; color: string }[] = [
+  { value: "string", label: "ขึ้นเอ็น", color: "#2F6B3A" },
+  { value: "sale", label: "ค่าคอม", color: "#B8860B" },
+  { value: "demo", label: "Demo", color: "#2A7A6E" },
+  { value: "grip", label: "Grip", color: "#5B9A4A" },
+  { value: "other", label: "อื่นๆ", color: "#5C6B57" },
 ];
+
+function isCustomPriceType(t: RecordType) {
+  return t === "demo" || t === "grip" || t === "other";
+}
 
 export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props) {
   const isEdit = !!initial?.id;
-  const [recordType, setRecordType] = useState<"string" | "other">(
+  const [recordType, setRecordType] = useState<RecordType>(
     initial?.record_type ?? "string"
   );
   const [form, setForm] = useState({
     racket: initial?.racket ?? "",
     string1: initial?.string1 ?? "",
     string2: initial?.string2 ?? "",
-    price: (initial?.record_type === "string" ? (initial?.price ?? 200) : 200) as 200 | 300,
-    is_new_racket: initial?.is_new_racket ?? false,
-    activity_name: initial?.activity_name ?? "",
-    otherPrice: initial?.record_type === "other" ? String(initial?.price ?? "") : "",
+    price: (initial?.record_type === "string" ? (initial?.price ?? 300) : 300) as 200 | 300,
+    customPrice: isCustomPriceType(initial?.record_type ?? "string")
+      ? String(initial?.price ?? "")
+      : "",
+    salePrice: initial?.record_type === "sale" ? String(initial?.price ?? 200) : "200",
     note: initial?.note ?? "",
   });
   const [error, setError] = useState("");
@@ -48,38 +54,50 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
     setError("");
 
     if (recordType === "string") {
+      if (!form.string1.trim()) {
+        setError("กรุณากรอกเอ็น Main");
+        return;
+      }
       await onSubmit({
         record_type: "string",
         racket: form.racket,
-        string1: form.string1,
+        string1: form.string1.trim(),
         string2: form.string2,
         price: form.price,
-        is_new_racket: form.is_new_racket,
-        activity_name: "",
         note: form.note,
       });
       return;
     }
 
-    if (!form.activity_name.trim()) {
-      setError("กรุณากรอกชื่อกิจกรรม");
+    if (recordType === "sale") {
+      const parsedPrice = parseInt(form.salePrice, 10);
+      if (!form.salePrice || Number.isNaN(parsedPrice) || (parsedPrice !== 200 && parsedPrice !== 500)) {
+        setError("ค่าคอมขายไม้เลือกได้เฉพาะ 200 หรือ 500 บาท");
+        return;
+      }
+      await onSubmit({
+        record_type: "sale",
+        racket: "",
+        string1: "",
+        string2: "",
+        price: parsedPrice,
+        note: form.note,
+      });
       return;
     }
 
-    const parsedPrice = parseInt(form.otherPrice, 10);
-    if (!form.otherPrice || Number.isNaN(parsedPrice) || parsedPrice <= 0) {
+    const parsedPrice = parseInt(form.customPrice, 10);
+    if (!form.customPrice || Number.isNaN(parsedPrice) || parsedPrice <= 0) {
       setError("กรุณากรอกราคาให้ถูกต้อง (ตัวเลขมากกว่า 0)");
       return;
     }
 
     await onSubmit({
-      record_type: "other",
+      record_type: recordType,
       racket: "",
       string1: "",
       string2: "",
       price: parsedPrice,
-      is_new_racket: false,
-      activity_name: form.activity_name,
       note: form.note,
     });
   };
@@ -87,59 +105,47 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
   return (
     <div className="overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mb-4" />
+        <div className="w-10 h-1 bg-[rgba(47,107,58,0.2)] rounded-full mx-auto mb-4" />
 
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-base">{isEdit ? "แก้ไขรายการ" : "เพิ่มรายการ"}</h3>
-          <div className="text-xs text-[#64748b]">{fmtDate(date)}</div>
+          <h3 className="font-bold text-base text-[#1F2E1C]">{isEdit ? "แก้ไขรายการ" : "เพิ่มรายการ"}</h3>
+          <div className="text-xs text-[#5C6B57]">{fmtDate(date)}</div>
         </div>
 
         {!isEdit && (
           <div
-            className="flex rounded-[10px] p-1 mb-4"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
+            className="grid grid-cols-3 gap-1.5 p-1.5 mb-4 rounded-[12px]"
+            style={{ background: "rgba(47,107,58,0.06)", border: "1px solid rgba(47,107,58,0.12)" }}
           >
-            <button
-              type="button"
-              onClick={() => {
-                setRecordType("string");
-                setError("");
-              }}
-              className="flex-1 py-[8px] rounded-[8px] text-xs font-semibold transition-all duration-200"
-              style={
-                recordType === "string"
-                  ? { background: "#3b82f6", color: "#fff" }
-                  : { color: "#475569" }
-              }
-            >
-              ขึ้นเอ็น
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setRecordType("other");
-                setError("");
-              }}
-              className="flex-1 py-[8px] rounded-[8px] text-xs font-semibold transition-all duration-200"
-              style={
-                recordType === "other"
-                  ? { background: "#06b6d4", color: "#fff" }
-                  : { color: "#475569" }
-              }
-            >
-              รายได้อื่นๆ
-            </button>
+            {TYPE_TABS.map((tab) => (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => {
+                  setRecordType(tab.value);
+                  setError("");
+                }}
+                className="py-[10px] rounded-[9px] text-xs font-semibold transition-all duration-200"
+                style={
+                  recordType === tab.value
+                    ? { background: tab.color, color: "#fff", boxShadow: "0 2px 8px rgba(31,46,28,0.12)" }
+                    : { color: "#5C6B57", background: "transparent" }
+                }
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         )}
 
         {isEdit && (
-          <div className="bg-[rgba(245,158,11,0.1)] border border-[rgba(245,158,11,0.2)] rounded-[10px] px-3 py-2 mb-4 text-xs text-[#f59e0b]">
-            เวลาที่แก้ไขจะอัปเดตอัตโนมัติเมื่อบันทึก
+          <div className="bg-[rgba(184,134,11,0.1)] border border-[rgba(184,134,11,0.25)] rounded-[10px] px-3 py-2 mb-4 text-xs text-[#B8860B]">
+            ประเภท: {RECORD_TYPE_LABELS[recordType]} · เวลาที่แก้ไขจะอัปเดตอัตโนมัติเมื่อบันทึก
           </div>
         )}
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-[10px] px-3 py-2 mb-4 text-[#f87171] text-sm">
+          <div className="bg-red-500/10 border border-red-500/20 rounded-[10px] px-3 py-2 mb-4 text-[#C44B4B] text-sm">
             {error}
           </div>
         )}
@@ -149,17 +155,18 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-[#64748b] mb-1 block">เอ็น Main</label>
+                  <label className="text-xs text-[#5C6B57] mb-1 block">เอ็น Main *</label>
                   <input
                     className="inp"
                     placeholder="Main"
                     value={form.string1}
                     onChange={(e) => setForm({ ...form, string1: e.target.value })}
+                    required
                     autoFocus
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-[#64748b] mb-1 block">เอ็น Cross</label>
+                  <label className="text-xs text-[#5C6B57] mb-1 block">เอ็น Cross</label>
                   <input
                     className="inp"
                     placeholder="Cross"
@@ -170,7 +177,7 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
               </div>
 
               <div>
-                <label className="text-xs text-[#64748b] mb-1 block">ราคา</label>
+                <label className="text-xs text-[#5C6B57] mb-1 block">ราคา</label>
                 <div className="flex gap-3">
                   {([200, 300] as const).map((p) => (
                     <button
@@ -182,22 +189,22 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
                         border: `2px solid ${
                           form.price === p
                             ? p === 200
-                              ? "#22c55e"
-                              : "#f59e0b"
-                            : "rgba(255,255,255,0.1)"
+                              ? "#2F6B3A"
+                              : "#B8860B"
+                            : "rgba(47,107,58,0.15)"
                         }`,
                         background:
                           form.price === p
                             ? p === 200
-                              ? "rgba(34,197,94,0.12)"
-                              : "rgba(245,158,11,0.12)"
-                            : "rgba(255,255,255,0.03)",
+                              ? "rgba(47,107,58,0.1)"
+                              : "rgba(184,134,11,0.1)"
+                            : "rgba(255,252,245,0.8)",
                         color:
                           form.price === p
                             ? p === 200
-                              ? "#22c55e"
-                              : "#f59e0b"
-                            : "#64748b",
+                              ? "#2F6B3A"
+                              : "#B8860B"
+                            : "#5C6B57",
                       }}
                     >
                       ฿{p}
@@ -205,62 +212,58 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
                   ))}
                 </div>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setForm({ ...form, is_new_racket: !form.is_new_racket })}
-                className="w-full py-[14px] rounded-[12px] font-medium text-sm cursor-pointer transition-all duration-150"
-                style={{
-                  border: `2px solid ${form.is_new_racket ? "rgba(245,158,11,0.5)" : "rgba(255,255,255,0.1)"}`,
-                  background: form.is_new_racket ? "rgba(245,158,11,0.1)" : "rgba(255,255,255,0.03)",
-                  color: form.is_new_racket ? "#f59e0b" : "#64748b",
-                }}
-              >
-                {form.is_new_racket ? "ขึ้นเอ็น + ค่าคอมขายไม้" : "ขึ้นเอ็นอย่างเดียว"}
-              </button>
             </>
           )}
 
-          {recordType === "other" && (
-            <>
-              <div>
-                <label className="text-xs text-[#64748b] mb-1 block">ชื่อกิจกรรม *</label>
-                <select
-                  className="inp cursor-pointer"
-                  style={{
-                    backgroundColor: "#1e293b",
-                    color: "#e2e8f0",
-                  }}
-                  value={form.activity_name}
-                  onChange={(e) => setForm({ ...form, activity_name: e.target.value })}
-                  autoFocus
-                >
-                  <option value="">-- เลือกกิจกรรม --</option>
-                  {ACTIVITY_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt} style={{ backgroundColor: "#1e293b", color: "#e2e8f0" }}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
+          {recordType === "sale" && (
+            <div>
+              <label className="text-xs text-[#5C6B57] mb-1 block">ค่าคอม (บาท)</label>
+              <div className="flex gap-3">
+                {([200, 500] as const).map((p) => {
+                  const selected = form.salePrice === String(p);
+                  const accent = p === 200 ? "#2F6B3A" : "#B8860B";
+                  const accentBg =
+                    p === 200 ? "rgba(47,107,58,0.1)" : "rgba(184,134,11,0.1)";
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setForm({ ...form, salePrice: String(p) })}
+                      className="flex-1 py-[14px] rounded-[12px] font-bold text-lg num cursor-pointer transition-all duration-150"
+                      style={{
+                        border: `2px solid ${selected ? accent : "rgba(47,107,58,0.15)"}`,
+                        background: selected ? accentBg : "rgba(255,252,245,0.8)",
+                        color: selected ? accent : "#5C6B57",
+                      }}
+                    >
+                      ฿{p}
+                    </button>
+                  );
+                })}
               </div>
+            </div>
+          )}
 
-              <div>
-                <label className="text-xs text-[#64748b] mb-1 block">ราคา (บาท) *</label>
-                <input
-                  className="inp"
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="0"
-                  min="1"
-                  value={form.otherPrice}
-                  onChange={(e) => setForm({ ...form, otherPrice: e.target.value })}
-                />
-              </div>
-            </>
+          {isCustomPriceType(recordType) && (
+            <div>
+              <label className="text-xs text-[#5C6B57] mb-1 block">
+                ราคา (บาท) * — {RECORD_TYPE_LABELS[recordType]}
+              </label>
+              <input
+                className="inp"
+                type="number"
+                inputMode="numeric"
+                placeholder="0"
+                min="1"
+                value={form.customPrice}
+                onChange={(e) => setForm({ ...form, customPrice: e.target.value })}
+                autoFocus
+              />
+            </div>
           )}
 
           <div>
-            <label className="text-xs text-[#64748b] mb-1 block">หมายเหตุ</label>
+            <label className="text-xs text-[#5C6B57] mb-1 block">หมายเหตุ</label>
             <input
               className="inp"
               placeholder="ไม่จำเป็น"
