@@ -11,7 +11,7 @@ import type { DaySummary, MonthSummary, Record } from "@/types";
 import { isOtherIncome } from "@/types";
 
 type Mode = "daily" | "monthly" | "filter";
-type RangePreset = "10d" | "1m" | "custom";
+type RangePreset = "d1" | "d2" | "d3" | "1m" | "custom";
 
 const toYMD = (d: Date) => {
   const y = d.getFullYear();
@@ -20,23 +20,31 @@ const toYMD = (d: Date) => {
   return `${y}-${m}-${day}`;
 };
 
-const daysAgo = (n: number) => {
+const currentMonthParts = () => {
   const d = new Date(today() + "T12:00:00");
-  d.setDate(d.getDate() - n);
-  return toYMD(d);
+  return { year: d.getFullYear(), month: d.getMonth() }; // month 0-based
 };
 
-const monthAgo = () => {
-  const d = new Date(today() + "T12:00:00");
-  d.setMonth(d.getMonth() - 1);
-  return toYMD(d);
+const ymdInMonth = (year: number, month: number, day: number) => {
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const clamped = Math.min(Math.max(day, 1), lastDay);
+  return toYMD(new Date(year, month, clamped, 12, 0, 0));
+};
+
+const decadePresetForToday = (): "d1" | "d2" | "d3" => {
+  const day = new Date(today() + "T12:00:00").getDate();
+  if (day <= 10) return "d1";
+  if (day <= 20) return "d2";
+  return "d3";
 };
 
 const rangeForPreset = (preset: RangePreset): { start: string; end: string } => {
-  const end = today();
-  if (preset === "10d") return { start: daysAgo(9), end };
-  if (preset === "1m") return { start: monthAgo(), end };
-  return { start: daysAgo(9), end };
+  const { year, month } = currentMonthParts();
+  if (preset === "d1") return { start: ymdInMonth(year, month, 1), end: ymdInMonth(year, month, 10) };
+  if (preset === "d2") return { start: ymdInMonth(year, month, 11), end: ymdInMonth(year, month, 20) };
+  if (preset === "d3") return { start: ymdInMonth(year, month, 21), end: ymdInMonth(year, month, 31) };
+  if (preset === "1m") return { start: ymdInMonth(year, month, 1), end: ymdInMonth(year, month, 31) };
+  return rangeForPreset(decadePresetForToday());
 };
 
 function SummaryContent() {
@@ -54,8 +62,9 @@ function SummaryContent() {
   const [monthlyLoading, setMonthlyLoading] = useState(false);
   const [year, setYear] = useState(String(new Date().getFullYear()));
 
-  const initialRange = rangeForPreset("10d");
-  const [rangePreset, setRangePreset] = useState<RangePreset>("10d");
+  const initialPreset = decadePresetForToday();
+  const initialRange = rangeForPreset(initialPreset);
+  const [rangePreset, setRangePreset] = useState<RangePreset>(initialPreset);
   const [start, setStart] = useState(initialRange.start);
   const [end, setEnd] = useState(initialRange.end);
   const [records, setRecords] = useState<Record[]>([]);
@@ -452,10 +461,12 @@ function SummaryContent() {
         <>
           <div className="card mb-4">
             <label className="text-xs text-[#5C6B57] block mb-2">ช่วงเวลา</label>
-            <div className="flex gap-2 mb-3">
+            <div className="flex flex-wrap gap-2 mb-3">
               {(
                 [
-                  { key: "10d", label: "10 วัน" },
+                  { key: "d1", label: "1–10" },
+                  { key: "d2", label: "11–20" },
+                  { key: "d3", label: "21–31" },
                   { key: "1m", label: "1 เดือน" },
                   { key: "custom", label: "กำหนดเอง" },
                 ] as const
