@@ -484,6 +484,8 @@ func (h *Handler) CopyJobsList(c *gin.Context) {
 			name = strings.Join(strings.Fields(name), " ")
 		} else if rec.RecordType == "sale" {
 			name = fmt.Sprintf("[ขายไม้] %s", model.RecordTypeLabel("sale"))
+		} else if rec.RecordType == "grip" {
+			name = fmt.Sprintf("grip %d", rec.Price)
 		} else {
 			name = model.RecordTypeLabel(rec.RecordType)
 		}

@@ -22,7 +22,7 @@ tasks:
             - go run ./cmd/migrate
 
     seed:
-        desc: Create admin user (admin / admin123)
+        desc: Reset DB, create admin + user1, seed sample records for user1
         cmds:
             - go run ./cmd/seed
 

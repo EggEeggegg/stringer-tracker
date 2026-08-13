@@ -1,9 +1,9 @@
 ﻿"use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { recordsApi } from "@/lib/api";
-import { fmtDate, fmtMoney, today, MONTHS_TH } from "@/lib/utils";
+import { fmtDate, fmtMoney, today, MONTHS_TH, formatJobsCopyList, copyTextToClipboard } from "@/lib/utils";
 import { BrandLogo } from "@/components/BrandLogo";
 import { RecordListSkeleton } from "@/components/Skeleton";
 import { toast } from "@/components/Toast";
@@ -70,6 +70,8 @@ function SummaryContent() {
   const [records, setRecords] = useState<Record[]>([]);
   const [filterLoading, setFilterLoading] = useState(false);
   const [filterLoaded, setFilterLoaded] = useState(false);
+  const [copyFallbackText, setCopyFallbackText] = useState<string | null>(null);
+  const copyFallbackRef = useRef<HTMLTextAreaElement>(null);
 
   const applyPreset = (preset: RangePreset) => {
     setRangePreset(preset);
@@ -149,35 +151,19 @@ function SummaryContent() {
   };
 
   const copyJobsList = async () => {
-    if (!start || !end) {
-      toast("กรุณาเลือกวันที่ก่อน", "error");
+    // Build text from already-loaded records so clipboard write stays
+    // inside the iOS/Safari user-gesture window (no await fetch first).
+    const text = formatJobsCopyList(records);
+    if (!text) {
+      toast("ไม่มีข้อมูลที่จะคัดลอก", "error");
       return;
     }
 
     try {
-      const res = await recordsApi.copyJobsList(start, end);
-      const text = res.text;
-      if (!text) {
-        toast("ไม่มีข้อมูลที่จะคัดลอก", "error");
-        return;
-      }
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        textarea.style.position = "fixed";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textarea);
-      }
-
+      await copyTextToClipboard(text);
       toast("คัดลอกรายการงานสำเร็จ", "success");
     } catch {
-      toast("คัดลอกล้มเหลว", "error");
+      setCopyFallbackText(text);
     }
   };
 
@@ -192,6 +178,13 @@ function SummaryContent() {
   useEffect(() => {
     if (mode === "filter" && !filterLoaded) fetchFilter();
   }, [mode, filterLoaded, fetchFilter]);
+
+  useEffect(() => {
+    if (!copyFallbackText || !copyFallbackRef.current) return;
+    const el = copyFallbackRef.current;
+    el.focus();
+    el.setSelectionRange(0, copyFallbackText.length);
+  }, [copyFallbackText]);
 
   const dTotal = dailyData.reduce((sum, item) => sum + item.total, 0);
   const dSaleTotal = dailyData.reduce((sum, item) => sum + item.sale_total, 0);
@@ -587,6 +580,31 @@ function SummaryContent() {
             </>
           )}
         </>
+      )}
+
+      {copyFallbackText && (
+        <div className="overlay" onClick={() => setCopyFallbackText(null)}>
+          <div
+            className="bg-[#FFFcf5] border border-[rgba(47,107,58,0.14)] rounded-[20px] p-5 mx-4 mb-[12vh] max-w-[340px] w-full shadow-[0_12px_40px_rgba(31,46,28,0.15)]"
+            onClick={(e) => e.stopPropagation()}
+            style={{ animation: "slideUp 0.2s ease" }}
+          >
+            <div className="font-bold text-base text-[#1F2E1C] mb-1">คัดลอกรายการงาน</div>
+            <p className="text-[#5C6B57] text-[13px] mb-3">
+              อุปกรณ์นี้ไม่รองรับคัดลอกอัตโนมัติ กดค้างที่ข้อความแล้วเลือก Copy
+            </p>
+            <textarea
+              ref={copyFallbackRef}
+              className="inp w-full h-40 text-sm"
+              readOnly
+              value={copyFallbackText}
+              onFocus={(e) => e.currentTarget.setSelectionRange(0, copyFallbackText.length)}
+            />
+            <button className="btn-primary w-full mt-3" onClick={() => setCopyFallbackText(null)}>
+              ปิด
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
