@@ -95,8 +95,8 @@ func (h *Handler) CreateRecord(c *gin.Context) {
 		Seq:        maxSeq + 1,
 		RecordType: input.RecordType,
 		Racket:     input.Racket,
-		String1:    input.String1,
-		String2:    input.String2,
+		String1:    strings.ToUpper(strings.TrimSpace(input.String1)),
+		String2:    strings.ToUpper(strings.TrimSpace(input.String2)),
 		Price:      input.Price,
 		Note:       input.Note,
 	}
@@ -139,8 +139,8 @@ func (h *Handler) UpdateRecord(c *gin.Context) {
 
 	record.RecordType = input.RecordType
 	record.Racket = input.Racket
-	record.String1 = input.String1
-	record.String2 = input.String2
+	record.String1 = strings.ToUpper(strings.TrimSpace(input.String1))
+	record.String2 = strings.ToUpper(strings.TrimSpace(input.String2))
 	record.Price = input.Price
 	record.Note = input.Note
 
