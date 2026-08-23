@@ -39,8 +39,8 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
   );
   const [form, setForm] = useState({
     racket: initial?.racket ?? "",
-    string1: initial?.string1 ?? "",
-    string2: initial?.string2 ?? "",
+    string1: (initial?.string1 ?? "").toUpperCase(),
+    string2: (initial?.string2 ?? "").toUpperCase(),
     price: (initial?.record_type === "string" ? (initial?.price ?? 300) : 300) as 200 | 300,
     customPrice: isCustomPriceType(initial?.record_type ?? "string")
       ? String(initial?.price ?? "")
@@ -61,8 +61,8 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
       await onSubmit({
         record_type: "string",
         racket: form.racket,
-        string1: form.string1.trim(),
-        string2: form.string2,
+        string1: form.string1.trim().toUpperCase(),
+        string2: form.string2.trim().toUpperCase(),
         price: form.price,
         note: form.note,
       });
@@ -158,9 +158,11 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
                   <label className="text-xs text-[#5C6B57] mb-1 block">เอ็น Main *</label>
                   <input
                     className="inp"
-                    placeholder="Main"
+                    placeholder="MAIN"
                     value={form.string1}
-                    onChange={(e) => setForm({ ...form, string1: e.target.value })}
+                    onChange={(e) => setForm({ ...form, string1: e.target.value.toUpperCase() })}
+                    autoCapitalize="characters"
+                    spellCheck={false}
                     required
                     autoFocus
                   />
@@ -169,9 +171,11 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
                   <label className="text-xs text-[#5C6B57] mb-1 block">เอ็น Cross</label>
                   <input
                     className="inp"
-                    placeholder="Cross"
+                    placeholder="CROSS"
                     value={form.string2}
-                    onChange={(e) => setForm({ ...form, string2: e.target.value })}
+                    onChange={(e) => setForm({ ...form, string2: e.target.value.toUpperCase() })}
+                    autoCapitalize="characters"
+                    spellCheck={false}
                   />
                 </div>
               </div>
