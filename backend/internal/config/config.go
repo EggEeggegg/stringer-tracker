@@ -22,7 +22,7 @@ func Load() *Config {
 	cfg := &Config{
 		DatabaseURL: mustEnv("DATABASE_URL"),
 		JWTSecret:   mustEnv("JWT_SECRET"),
-		Port:        getEnv("PORT", "8080"),
+		Port:        getEnv("PORT", "4000"),
 		CORSOrigin:  getEnv("CORS_ORIGIN", "http://localhost:3000"),
 		GinMode:     getEnv("GIN_MODE", "release"),
 	}

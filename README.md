@@ -8,7 +8,7 @@
 |----------|-----------------------------------|
 | Frontend | Next.js 14 (App Router, TypeScript, Tailwind CSS) |
 | Backend  | Go 1.24 + Gin + GORM + pgx        |
-| Database | PostgreSQL (Neon.tech) + Excelize |
+| Database | PostgreSQL (local / Coolify) + Excelize |
 | Auth     | JWT (HS256) + bcrypt (cost 12)    |
 
 ## Quick Start
@@ -16,15 +16,15 @@
 ### Prerequisites
 - Go 1.24+
 - Node.js 20+
-- PostgreSQL database (สมัคร [Neon.tech](https://neon.tech) ฟรี)
+- PostgreSQL (local, หรือ database ที่ Coolify สร้างให้)
 
 ### 1. Database
 
-สมัคร Neon.tech → สร้าง database → copy connection string
+สร้าง PostgreSQL แล้วใส่ connection string ใน `backend/.env` เป็น `DATABASE_URL`
 
-รัน migration:
+รัน migration จาก `backend/`:
 ```bash
-psql "$DATABASE_URL" -f backend/migrations/001_init.sql
+task migrate
 ```
 
 ### 2. Backend
@@ -36,7 +36,7 @@ cp .env.example .env
 
 go mod download
 go run ./cmd/seed    # สร้าง admin user
-go run ./cmd/server  # start dev server (port 8080)
+go run ./cmd/server  # start dev server (port 4000)
 ```
 
 หรือใช้ Task:
@@ -50,7 +50,7 @@ task run
 ```bash
 cd frontend
 cp .env.example .env.local
-# แก้ไข NEXT_PUBLIC_API_URL ถ้า backend ไม่ได้รันที่ localhost:8080
+# แก้ไข NEXT_PUBLIC_API_URL ถ้า backend ไม่ได้รันที่ localhost:4000
 
 npm install
 npm run dev  # start dev server (port 3000)
@@ -58,11 +58,9 @@ npm run dev  # start dev server (port 3000)
 
 ### 4. Deploy
 
-| Service  | Platform              |
-|----------|-----------------------|
-| Frontend | Vercel                |
-| Backend  | Railway / Render      |
-| Database | Neon.tech             |
+คู่มือขึ้นเครื่องส่วนตัวด้วย Coolify อยู่ที่ [docs/README.md](docs/README.md)
+
+สรุปสั้นๆ: ทดสอบด้วย `docker compose` ก่อน แล้วติดตั้ง Coolify บน Ubuntu → สร้าง PostgreSQL + backend + frontend → เปิด Auto Deploy จาก `main`
 
 ## Default Admin
 
@@ -103,7 +101,9 @@ npm run dev  # start dev server (port 3000)
 
 ```
 tennis-tracker/
+├── docker-compose.yml         ← postgres + backend + frontend (ทดสอบก่อนขึ้น Coolify)
 ├── docs/
+│   ├── README.md              ← คู่มือ deploy (Coolify)
 │   └── architecture.md        ← full system architecture
 ├── backend/
 │   ├── cmd/
@@ -130,7 +130,8 @@ tennis-tracker/
     │   ├── components/        ← NavBar, Toast, ConfirmDialog, RecordForm, etc.
     │   ├── lib/               ← api client (authApi, recordsApi, adminApi), utils
     │   └── types/             ← TypeScript types (User, Record, DaySummary, etc.)
-    ├── next.config.ts         ← proxy /api/* → backend
+    ├── Dockerfile             ← Next.js standalone image สำหรับ Coolify
+    ├── next.config.mjs        ← proxy /api/* → backend + standalone output
     ├── tailwind.config.ts
     └── .env.example
 ```
@@ -141,12 +142,12 @@ tennis-tracker/
 ```env
 DATABASE_URL=postgresql://user:pass@host:5432/dbname
 JWT_SECRET=your-secret-key-here
-PORT=8080
+PORT=4000
 GIN_MODE=debug
 CORS_ORIGIN=http://localhost:3000
 ```
 
 ### Frontend (`frontend/.env.local`)
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL=http://localhost:4000
 ```

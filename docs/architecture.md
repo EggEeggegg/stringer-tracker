@@ -137,7 +137,7 @@ tennis-tracker/
 ```
 DATABASE_URL=postgresql://user:pass@host:5432/tennis_tracker?sslmode=require
 JWT_SECRET=strong-random-secret-at-least-32-chars
-PORT=8080
+PORT=4000
 CORS_ORIGIN=https://your-app.vercel.app
 GIN_MODE=release
 ```

@@ -1,0 +1,8 @@
+.env
+bin
+tmp
+*.exe
+.git
+.gitignore
+Taskfile.yml
+.dockerignore

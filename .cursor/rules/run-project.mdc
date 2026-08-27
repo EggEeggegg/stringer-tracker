@@ -9,14 +9,14 @@ When asked how to run this repository, provide these steps:
 
 1) Backend setup and run (from `backend/`):
 - `copy .env.example .env`
-- Fill `DATABASE_URL`, `JWT_SECRET`, and keep `PORT=8080`
+- Fill `DATABASE_URL`, `JWT_SECRET`, and keep `PORT=4000`
 - `task migrate`
 - `task seed`
 - `task dev` (or `task run`)
 
 2) Frontend setup and run (from `frontend/`):
 - `copy .env.example .env.local`
-- Set `NEXT_PUBLIC_API_URL=http://localhost:8080`
+- Set `NEXT_PUBLIC_API_URL=http://localhost:4000`
 - `bun install`
 - `bun run dev`
 
