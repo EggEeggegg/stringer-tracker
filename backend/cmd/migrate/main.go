@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"sort"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"tennis-tracker/internal/database"
 )
 
 func main() {
@@ -32,23 +32,12 @@ func main() {
 	}
 	defer sqlDB.Close()
 
-	files, err := filepath.Glob("migrations/*.sql")
-	if err != nil || len(files) == 0 {
-		log.Fatal("migrate: no migration files found in migrations/")
+	files, err := database.ApplySQLFiles(db)
+	if err != nil {
+		log.Fatalf("migrate: %v", err)
 	}
-	sort.Strings(files)
-
 	for _, f := range files {
-		sql, err := os.ReadFile(f)
-		if err != nil {
-			log.Fatalf("migrate: failed to read %s: %v", f, err)
-		}
-		fmt.Printf("Running %s...\n", f)
-		if _, err := sqlDB.Exec(string(sql)); err != nil {
-			log.Fatalf("migrate: failed to run %s: %v", f, err)
-		}
-		fmt.Println("  OK")
+		fmt.Printf("Running %s... OK\n", f)
 	}
-
 	fmt.Println("All migrations applied successfully.")
 }

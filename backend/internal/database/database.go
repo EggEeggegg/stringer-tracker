@@ -1,8 +1,11 @@
 package database
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"sort"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -21,7 +24,7 @@ func Connect(dsn string) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger:  logger.Default.LogMode(logLevel),
 		NowFunc: func() time.Time { return time.Now().UTC() },
-		// Schema is managed by migrations/001_init.sql — don't let GORM create constraints
+		// Schema is managed by migrations/*.sql — don't let GORM create constraints
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
@@ -42,12 +45,106 @@ func Connect(dsn string) *gorm.DB {
 		log.Fatalf("database: ping failed: %v", err)
 	}
 
-	// Auto-apply schema additions on every startup (idempotent)
+	if _, err := ApplySQLFiles(db); err != nil {
+		log.Fatalf("database: sql migrations failed: %v", err)
+	}
+
+	if err := applyStartupFixes(db); err != nil {
+		log.Fatalf("database: migration failed: %v", err)
+	}
+
+	log.Println("database: connected (GORM + postgres driver)")
+	return db
+}
+
+// ApplySQLFiles runs backend/migrations/*.sql in name order (idempotent CREATE/ALTER).
+func ApplySQLFiles(db *gorm.DB) ([]string, error) {
+	dir, err := findMigrationsDir()
+	if err != nil {
+		return nil, err
+	}
+
+	files, err := filepath.Glob(filepath.Join(dir, "*.sql"))
+	if err != nil {
+		return nil, fmt.Errorf("list migrations: %w", err)
+	}
+	if len(files) == 0 {
+		return nil, fmt.Errorf("no migration files found in %s", dir)
+	}
+	sort.Strings(files)
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	applied := make([]string, 0, len(files))
+	for _, f := range files {
+		sql, err := os.ReadFile(f)
+		if err != nil {
+			return applied, fmt.Errorf("read %s: %w", f, err)
+		}
+		if _, err := sqlDB.Exec(string(sql)); err != nil {
+			return applied, fmt.Errorf("%s: %w", filepath.Base(f), err)
+		}
+		applied = append(applied, f)
+		log.Printf("database: applied %s", filepath.Base(f))
+	}
+	return applied, nil
+}
+
+func findMigrationsDir() (string, error) {
+	candidates := []string{"migrations"}
+	if exe, err := os.Executable(); err == nil {
+		candidates = append(candidates, filepath.Join(filepath.Dir(exe), "migrations"))
+	}
+	if wd, err := os.Getwd(); err == nil {
+		candidates = append(candidates, filepath.Join(wd, "migrations"))
+	}
+
+	seen := map[string]struct{}{}
+	for _, dir := range candidates {
+		if dir == "" {
+			continue
+		}
+		if _, ok := seen[dir]; ok {
+			continue
+		}
+		seen[dir] = struct{}{}
+		matches, _ := filepath.Glob(filepath.Join(dir, "*.sql"))
+		if len(matches) > 0 {
+			return dir, nil
+		}
+	}
+	return "", fmt.Errorf("no migration files found (looked in migrations/ next to the process)")
+}
+
+func recordsTableExists(db *gorm.DB) (bool, error) {
+	var exists bool
+	err := db.Raw(`
+		SELECT EXISTS (
+			SELECT 1 FROM information_schema.tables
+			WHERE table_schema = 'public' AND table_name = 'records'
+		)
+	`).Scan(&exists).Error
+	return exists, err
+}
+
+// applyStartupFixes updates an existing records table. Skipped on empty databases
+// so a missing table no longer crashes the process.
+func applyStartupFixes(db *gorm.DB) error {
+	exists, err := recordsTableExists(db)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		log.Println("database: records table missing after sql migrations; skipping startup alters")
+		return nil
+	}
+
 	migrations := []string{
-		// Drop old checks before remapping types that they disallow
 		`ALTER TABLE records DROP CONSTRAINT IF EXISTS records_price_check`,
 		`ALTER TABLE records DROP CONSTRAINT IF EXISTS records_type_check`,
-		// Map known activity_name values before dropping the column
 		`DO $$
 		BEGIN
 		  IF EXISTS (
@@ -82,10 +179,8 @@ func Connect(dsn string) *gorm.DB {
 	}
 	for _, m := range migrations {
 		if err := db.Exec(m).Error; err != nil {
-			log.Fatalf("database: migration failed: %v", err)
+			return err
 		}
 	}
-
-	log.Println("database: connected (GORM + postgres driver)")
-	return db
+	return nil
 }
