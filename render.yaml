@@ -15,4 +15,4 @@ services:
       - key: GIN_MODE
         value: release
       - key: PORT
-        value: "8080"
+        value: "4000"

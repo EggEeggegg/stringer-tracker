@@ -69,7 +69,7 @@ tennis-tracker/
 ```
 DATABASE_URL=postgresql://user:pass@host:5432/tennis_tracker?sslmode=require
 JWT_SECRET=strong-random-secret-at-least-32-chars
-PORT=8080
+PORT=4000
 CORS_ORIGIN=https://your-app.vercel.app
 GIN_MODE=release
 ```
@@ -88,7 +88,7 @@ cp .env.example .env           # แก้ค่าใน .env
 go mod tidy                    # install dependencies
 task migrate                   # สร้างตาราง DB
 task seed                      # สร้าง admin user (admin / admin123)
-task run                       # dev server (port 8080)
+task run                       # dev server (port 4000)
 task build                     # build binary
 ```
 

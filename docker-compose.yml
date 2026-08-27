@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tennis_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tennis_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-off: docker compose --profile setup run --rm migrate
+  # Do not seed here — seed resets the database.
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tennis_tracker?sslmode=disable
+    command: ["./migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    profiles: ["setup"]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tennis_tracker?sslmode=disable
+      JWT_SECRET: change-me-local-dev-secret-at-least-32-chars
+      PORT: "4000"
+      CORS_ORIGIN: http://localhost:3000
+      GIN_MODE: release
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:4000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
