@@ -1,4 +1,4 @@
-﻿# Tennis String Tracker - Full-Stack Project
+﻿# stringer-tracker - Full-Stack Project
 
 ## Tech Stack
 - Frontend: Next.js 14 (App Router) + TypeScript + Tailwind CSS
@@ -9,7 +9,11 @@
 ## Project Structure
 
 ```text
-tennis-tracker/
+stringer-tracker/
+|- Taskfile.yml                ← root: task dev / setup / down
+|- package.json                ← root: bun run dev / setup / down
+|- scripts/prepare-dev.ts      ← migrate against local PostgreSQL on :5432
+|- docker-compose.yml          ← postgres (+ optional built backend/frontend)
 |- backend/
 |  |- go.mod
 |  |- Taskfile.yml
@@ -40,14 +44,19 @@ tennis-tracker/
 |  |- next.config.mjs
 |  |- tailwind.config.ts
 |  |- public/
+|  |  |- logo.png
 |  |  |- icon-192.png
-|  |  `- icon-512.png
+|  |  |- icon-512.png
+|  |  |- icon-512-maskable.png
+|  |  |- apple-touch-icon.png
+|  |  `- favicon.ico
 |  `- src/
 |     |- types/index.ts
 |     |- lib/
 |     |  |- api.ts
 |     |  `- utils.ts
 |     |- components/
+|     |  |- BrandLogo.tsx
 |     |  |- NavBar.tsx
 |     |  |- RecordCard.tsx
 |     |  |- RecordForm.tsx
@@ -72,7 +81,7 @@ tennis-tracker/
 
 ### backend/.env
 ```env
-DATABASE_URL=postgresql://user:pass@host:5432/tennis_tracker?sslmode=require
+DATABASE_URL=postgresql://user:pass@host:5432/stringer_tracker?sslmode=require
 JWT_SECRET=strong-random-secret-at-least-32-chars
 PORT=4000
 CORS_ORIGIN=https://your-app.vercel.app
@@ -85,6 +94,14 @@ NEXT_PUBLIC_API_URL=https://your-api.railway.app
 ```
 
 ## Important Commands
+
+### Root (full local stack)
+```bash
+bun install
+bun run setup          # first time: env + migrate + seed
+bun run dev            # everyday: migrate + air + Next.js
+# task setup / task dev do the same thing
+```
 
 ### Backend
 ```bash
@@ -101,10 +118,10 @@ task build
 ```bash
 cd frontend
 cp .env.example .env.local
-npm install
-npm run dev
-npm run build && npm run start
-npm run type-check
+bun install
+bun run dev
+bun run build && bun run start
+bun run type-check
 ```
 
 ## API Endpoints
@@ -162,8 +179,8 @@ npm run type-check
 
 ## Frontend Notes
 - UI text was normalized back to UTF-8 after prior encoding issues
-- PWA behavior has been removed from app layout
-- `frontend/public/sw.js` now only exists as a cleanup worker to unregister old service workers and clear stale caches
+- App name, browser tab, and PWA install use **stringer-tracker** plus the tennis-ball logo
+- `frontend/public/sw.js` only exists as a cleanup worker to unregister old service workers and clear stale caches
 - `frontend/src/components/DevServiceWorkerReset.tsx` may still exist as an unused leftover file because it could not be deleted in-session, but it is not imported anymore
 
 ## Current Status
@@ -171,6 +188,6 @@ npm run type-check
 - [x] Daily summary, monthly summary, Excel export
 - [x] Copy jobs list endpoint and summary-page button
 - [x] Create record without requiring racket name
-- [x] Removed active PWA integration from layout
+- [x] stringer-tracker branding, favicon, and PWA icons
 - [ ] Deploy backend (Railway / Render)
 - [ ] Deploy frontend (Vercel)
