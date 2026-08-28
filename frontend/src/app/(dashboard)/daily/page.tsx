@@ -115,7 +115,7 @@ export default function DailyPage() {
     <div className="max-w-lg mx-auto px-3 pt-4">
       <div className="text-center py-2 pb-4">
         <BrandLogo size="sm" />
-        <h1 className="brand-title text-xl">String Tracker</h1>
+        <h1 className="brand-title text-xl">Stringer Tracker</h1>
         <p className="text-[#8A9784] text-xs mt-1">บันทึกการขึ้นเอ็นเทนนิส</p>
       </div>
 

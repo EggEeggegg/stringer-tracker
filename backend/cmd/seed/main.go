@@ -9,9 +9,9 @@ import (
 	"os"
 	"time"
 
-	"tennis-tracker/internal/config"
-	"tennis-tracker/internal/database"
-	"tennis-tracker/internal/model"
+	"stringer-tracker/internal/config"
+	"stringer-tracker/internal/database"
+	"stringer-tracker/internal/model"
 
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"

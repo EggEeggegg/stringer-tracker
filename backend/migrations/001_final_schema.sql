@@ -1,4 +1,4 @@
--- Tennis String Tracker — Final Database Schema
+-- stringer-tracker — Final Database Schema
 -- Run: psql "$DATABASE_URL" -f migrations/001_final_schema.sql
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";

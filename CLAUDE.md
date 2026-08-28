@@ -1,4 +1,4 @@
-# Tennis String Tracker — Full-Stack Project
+# stringer-tracker — Full-Stack Project
 
 ## Tech Stack
 - **Frontend**: Next.js 14 (App Router) + TypeScript + Tailwind CSS → Deploy Vercel
@@ -9,9 +9,13 @@
 ## โครงสร้างไฟล์
 
 ```
-tennis-tracker/
+stringer-tracker/
+├── Taskfile.yml                     ← root: task dev / setup / down
+├── package.json                     ← root: bun run dev / setup / down
+├── scripts/prepare-dev.ts           ← migrate กับ PostgreSQL บน :5432
+├── docker-compose.yml               ← postgres (+ optional built images)
 ├── backend/                         ← Go API server
-│   ├── go.mod                       ← module: tennis-tracker
+│   ├── go.mod                       ← module: stringer-tracker
 │   ├── Taskfile.yml                 ← task run / build / migrate / seed
 │   ├── .env.example
 │   ├── migrations/
@@ -67,7 +71,7 @@ tennis-tracker/
 
 ### backend/.env
 ```
-DATABASE_URL=postgresql://user:pass@host:5432/tennis_tracker?sslmode=require
+DATABASE_URL=postgresql://user:pass@host:5432/stringer_tracker?sslmode=require
 JWT_SECRET=strong-random-secret-at-least-32-chars
 PORT=4000
 CORS_ORIGIN=https://your-app.vercel.app
@@ -80,6 +84,14 @@ NEXT_PUBLIC_API_URL=https://your-api.railway.app
 ```
 
 ## คำสั่งสำคัญ
+
+### Root (รันทั้งกอง)
+```bash
+bun install
+bun run setup                  # ครั้งแรก: env + migrate + seed
+bun run dev                    # ทุกวัน: migrate + air + Next.js
+# task setup / task dev ทำอย่างเดียวกัน
+```
 
 ### Backend
 ```bash
@@ -96,9 +108,9 @@ task build                     # build binary
 ```bash
 cd frontend
 cp .env.example .env.local     # แก้ NEXT_PUBLIC_API_URL
-npm install
-npm run dev                    # dev server (port 3000)
-npm run build && npm run start # production
+bun install
+bun run dev                    # dev server (port 3000)
+bun run build && bun run start # production
 ```
 
 ## API Endpoints
@@ -141,5 +153,6 @@ npm run build && npm run start # production
 - [x] Migration 002: record type (string | sale)
 - [x] Frontend Next.js: Login, Daily, Summary (รวม filter), Admin, rate limiting
 - [x] Database schema: users + records + updated_at triggers
+- [x] stringer-tracker branding, favicon, and PWA icons
 - [ ] Deploy backend (Railway / Render)
 - [ ] Deploy frontend (Vercel)

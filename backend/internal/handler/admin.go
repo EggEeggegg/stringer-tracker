@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"tennis-tracker/internal/model"
+	"stringer-tracker/internal/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/xuri/excelize/v2"
@@ -357,7 +357,7 @@ func (h *Handler) ExportReportCSV(c *gin.Context) {
 	f.SetSheetName("Sheet1", summarySheet)
 
 	// Header info
-	f.SetCellValue(summarySheet, "A1", "รายงาน String Tracker")
+	f.SetCellValue(summarySheet, "A1", "รายงาน Stringer Tracker")
 	if start != "" && end != "" {
 		f.SetCellValue(summarySheet, "A2", fmt.Sprintf("ช่วงเวลา: %s ถึง %s", start, end))
 		f.SetCellValue(summarySheet, "A3", fmt.Sprintf("สร้างเมื่อ: %s", time.Now().Format("2006-01-02 15:04:05")))

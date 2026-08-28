@@ -1,0 +1,13 @@
+{
+  "name": "stringer-tracker",
+  "private": true,
+  "scripts": {
+    "predev": "bun scripts/prepare-dev.ts",
+    "dev": "concurrently -k -n api,web -c cyan,green \"task --dir backend dev\" \"bun run --cwd frontend dev\"",
+    "setup": "bun scripts/prepare-dev.ts && task --dir backend seed",
+    "down": "docker compose stop postgres"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

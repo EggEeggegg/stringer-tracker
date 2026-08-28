@@ -139,7 +139,7 @@ function SummaryContent() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `tennis-records-${start}-${end}.xlsx`;
+      link.download = `stringer-records-${start}-${end}.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -217,7 +217,7 @@ function SummaryContent() {
     <div className="max-w-lg mx-auto px-3 pt-4">
       <div className="text-center py-2 pb-4">
         <BrandLogo size="sm" />
-        <h1 className="brand-title text-xl">String Tracker</h1>
+        <h1 className="brand-title text-xl">Stringer Tracker</h1>
       </div>
 
       <div

@@ -1,4 +1,4 @@
-# Deploy — Tennis String Tracker
+# Deploy — stringer-tracker
 
 ขึ้น production บนเครื่องส่วนตัวด้วย [Coolify](https://coolify.io) แทน Vercel / Render / Neon
 
@@ -51,7 +51,7 @@ docker compose --profile setup run --rm migrate
 สร้าง admin ครั้งแรกจาก `backend/` โดยให้ `DATABASE_URL` ชี้ไป postgres ใน compose:
 
 ```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/tennis_tracker?sslmode=disable
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/stringer_tracker?sslmode=disable
 ```
 
 ```bash
@@ -80,7 +80,7 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 
 ## ตั้งแอปใน Coolify
 
-สร้าง **Project** เช่น `tennis-tracker` แล้วเพิ่ม 3 อย่างตามลำดับนี้
+สร้าง **Project** เช่น `stringer-tracker` แล้วเพิ่ม 3 อย่างตามลำดับนี้
 
 ### 1. PostgreSQL
 

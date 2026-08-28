@@ -1,16 +1,18 @@
+# Local hot-reload: from repo root run `bun run dev` or `task dev`.
+# That starts only Postgres here, then air + Next.js on the host.
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: tennis_tracker
+      POSTGRES_DB: stringer_tracker
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d tennis_tracker"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d stringer_tracker"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -22,7 +24,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tennis_tracker?sslmode=disable
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/stringer_tracker?sslmode=disable
     command: ["./migrate"]
     depends_on:
       postgres:
@@ -35,7 +37,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tennis_tracker?sslmode=disable
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/stringer_tracker?sslmode=disable
       JWT_SECRET: change-me-local-dev-secret-at-least-32-chars
       PORT: "4000"
       CORS_ORIGIN: http://localhost:3000

@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-	"tennis-tracker/internal/middleware"
-	"tennis-tracker/internal/model"
+	"stringer-tracker/internal/middleware"
+	"stringer-tracker/internal/model"
 )
 
 type loginInput struct {

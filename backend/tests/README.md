@@ -1,6 +1,6 @@
 # Backend Unit Tests
 
-Comprehensive unit tests for Tennis String Tracker backend handlers and models.
+Comprehensive unit tests for stringer-tracker backend handlers and models.
 
 ## Running Tests
 
@@ -26,7 +26,7 @@ All tests passing ✅
 === RUN   TestGinContextGetSetValues
 === RUN   TestHttpRequestBodyParsing
 PASS
-ok  	tennis-tracker/tests	1.323s
+ok  	stringer-tracker/tests	1.323s
 ```
 
 ## Test Coverage

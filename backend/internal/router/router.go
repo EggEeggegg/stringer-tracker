@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"tennis-tracker/internal/config"
-	"tennis-tracker/internal/handler"
-	"tennis-tracker/internal/middleware"
+	"stringer-tracker/internal/config"
+	"stringer-tracker/internal/handler"
+	"stringer-tracker/internal/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

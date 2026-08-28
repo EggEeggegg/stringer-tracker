@@ -1,0 +1,22 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Start Postgres, backend, and frontend
+    cmds:
+      - task: dev
+
+  dev:
+    desc: Start Postgres, backend, and frontend
+    cmds:
+      - bun run dev
+
+  setup:
+    desc: First-time local setup (env, Docker, migrate, seed)
+    cmds:
+      - bun run setup
+
+  down:
+    desc: Stop local Postgres
+    cmds:
+      - bun run down

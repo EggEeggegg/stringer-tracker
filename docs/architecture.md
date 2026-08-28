@@ -1,4 +1,4 @@
-# Tennis String Tracker — Full-Stack Architecture
+# stringer-tracker — Full-Stack Architecture
 
 ## ภาพรวมระบบ
 
@@ -100,7 +100,7 @@
 ## โครงสร้างไฟล์สำคัญ
 
 ```
-tennis-tracker/
+stringer-tracker/
 ├── backend/
 │   ├── cmd/server/main.go          ← entry point + graceful shutdown
 │   ├── cmd/seed/main.go            ← สร้าง admin user
@@ -135,7 +135,7 @@ tennis-tracker/
 
 ### backend/.env
 ```
-DATABASE_URL=postgresql://user:pass@host:5432/tennis_tracker?sslmode=require
+DATABASE_URL=postgresql://user:pass@host:5432/stringer_tracker?sslmode=require
 JWT_SECRET=strong-random-secret-at-least-32-chars
 PORT=4000
 CORS_ORIGIN=https://your-app.vercel.app

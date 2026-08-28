@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"tennis-tracker/internal/config"
+	"stringer-tracker/internal/config"
 
 	"gorm.io/gorm"
 )

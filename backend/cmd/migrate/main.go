@@ -11,7 +11,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"tennis-tracker/internal/database"
+	"stringer-tracker/internal/database"
 )
 
 func main() {

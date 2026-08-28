@@ -33,7 +33,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <BrandLogo size="lg" className="mb-4" />
-          <h1 className="brand-title text-2xl">String Tracker</h1>
+          <h1 className="brand-title text-2xl">Stringer Tracker</h1>
           <p className="text-[#8A9784] text-xs mt-1">บันทึกการขึ้นเอ็นเทนนิส</p>
         </div>
 

@@ -3,6 +3,7 @@ dist
 .vercel
 .next
 .env
+.env.local
 tmp/
 backend/.gocache/
 frontend/tsconfig.tsbuildinfo

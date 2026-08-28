@@ -1,4 +1,4 @@
-# Tennis String Tracker — Full-Stack
+# stringer-tracker
 
 ระบบบันทึกการขึ้นเอ็นเทนนิส พร้อมระบบ user และ admin dashboard
 
@@ -14,46 +14,41 @@
 ## Quick Start
 
 ### Prerequisites
+- PostgreSQL 17 on `localhost:5432` (user `postgres`, password `postgres`)
 - Go 1.24+
-- Node.js 20+
-- PostgreSQL (local, หรือ database ที่ Coolify สร้างให้)
+- [Task](https://taskfile.dev) และ [Air](https://github.com/air-verse/air)
+- [Bun](https://bun.sh)
 
-### 1. Database
+### รันทั้งกองด้วยคำสั่งเดียว
 
-สร้าง PostgreSQL แล้วใส่ connection string ใน `backend/.env` เป็น `DATABASE_URL`
+ครั้งแรก (จากรากโปรเจกต์):
+```bash
+bun install
+bun run setup
+```
 
-รัน migration จาก `backend/`:
+ทุกครั้งหลังจากนี้:
+```bash
+bun run dev
+```
+
+หรือ `task dev` ก็ได้เหมือนกัน — สคริปต์จะ migrate กับ PostgreSQL 17 บนเครื่อง (`localhost:5432`) แล้วเปิด backend (`air`) กับ frontend (`next dev`)
+
+เปิด [http://localhost:3000](http://localhost:3000)
+
+### รันแยกชิ้น (ถ้าต้องการ)
+
+Backend จาก `backend/`:
 ```bash
 task migrate
-```
-
-### 2. Backend
-
-```bash
-cd backend
-cp .env.example .env
-# แก้ไข .env ใส่ DATABASE_URL และ JWT_SECRET
-
-go mod download
-go run ./cmd/seed    # สร้าง admin user
-go run ./cmd/server  # start dev server (port 4000)
-```
-
-หรือใช้ Task:
-```bash
 task seed
-task run
+task dev
 ```
 
-### 3. Frontend
-
+Frontend จาก `frontend/`:
 ```bash
-cd frontend
-cp .env.example .env.local
-# แก้ไข NEXT_PUBLIC_API_URL ถ้า backend ไม่ได้รันที่ localhost:4000
-
-npm install
-npm run dev  # start dev server (port 3000)
+bun install
+bun run dev
 ```
 
 ### 4. Deploy
@@ -100,7 +95,10 @@ npm run dev  # start dev server (port 3000)
 ## Project Structure
 
 ```
-tennis-tracker/
+stringer-tracker/
+├── Taskfile.yml               ← root: task dev / setup / down
+├── package.json               ← root: bun run dev / setup / down
+├── scripts/prepare-dev.ts     ← migrate กับ PostgreSQL บน :5432
 ├── docker-compose.yml         ← postgres + backend + frontend (ทดสอบก่อนขึ้น Coolify)
 ├── docs/
 │   ├── README.md              ← คู่มือ deploy (Coolify)

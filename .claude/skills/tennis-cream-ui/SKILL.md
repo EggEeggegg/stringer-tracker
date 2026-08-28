@@ -1,7 +1,7 @@
 ---
 name: tennis-cream-ui
 description: >-
-  Apply the Tennis String Tracker cream-and-green UI theme (court green on cream).
+  Apply the stringer-tracker cream-and-green UI theme (court green on cream).
   Use when building or restyling frontend pages/components, theming the app,
   editing globals.css / Tailwind colors, NavBar, cards, forms, buttons, or when
   the user asks for tennis/cream/green UI, ธีมเทนนิส, สีครีม, or สีเขียว.
