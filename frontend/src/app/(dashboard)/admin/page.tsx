@@ -235,7 +235,7 @@ function AdminContent() {
       {/* Header */}
       <div className="text-center py-3 pb-5">
         <BrandLogo size="md" />
-        <h1 className="brand-title text-2xl">String Tracker</h1>
+        <h1 className="brand-title text-2xl">Stringer Tracker</h1>
         <div className="flex items-center justify-center gap-1 mt-2">
           <span className="text-[11px] text-[#5C6B57] bg-[#FFFcf5] border border-[rgba(47,107,58,0.14)] rounded-full px-3 py-[3px]">
             Admin Dashboard

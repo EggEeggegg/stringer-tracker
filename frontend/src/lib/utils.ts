@@ -50,8 +50,8 @@ export const fmtMoney = (n: number) => n.toLocaleString("th-TH");
 
 // ─── Auth helpers ─────────────────────────────────────────────────────────────
 
-export const TOKEN_KEY = "tennis-tracker-token";
-export const USER_KEY = "tennis-tracker-user";
+export const TOKEN_KEY = "stringer-tracker-token";
+export const USER_KEY = "stringer-tracker-user";
 
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;

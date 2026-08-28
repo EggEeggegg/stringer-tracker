@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"tennis-tracker/internal/config"
+	"stringer-tracker/internal/config"
 )
 
 // Claims holds the JWT payload we embed when issuing tokens.

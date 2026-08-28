@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"tennis-tracker/internal/config"
-	"tennis-tracker/internal/database"
-	"tennis-tracker/internal/router"
+	"stringer-tracker/internal/config"
+	"stringer-tracker/internal/database"
+	"stringer-tracker/internal/router"
 )
 
 func main() {

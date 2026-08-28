@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/xuri/excelize/v2"
-	"tennis-tracker/internal/model"
+	"stringer-tracker/internal/model"
 )
 
 const otherIncomeFilter = "record_type IN ('demo', 'grip', 'other')"
@@ -422,7 +422,7 @@ func (h *Handler) ExportRecordsExcel(c *gin.Context) {
 	}
 
 	// Send Excel file
-	filename := fmt.Sprintf("tennis-records-%s-%s.xlsx", start, end)
+	filename := fmt.Sprintf("stringer-records-%s-%s.xlsx", start, end)
 	c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
 	c.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", buf.Bytes())

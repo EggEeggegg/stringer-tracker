@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
-	"tennis-tracker/internal/middleware"
-	"tennis-tracker/internal/model"
+	"stringer-tracker/internal/middleware"
+	"stringer-tracker/internal/model"
 )
 
 func TestLogin_ValidCredentials(t *testing.T) {

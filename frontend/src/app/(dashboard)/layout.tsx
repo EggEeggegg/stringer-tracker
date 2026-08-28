@@ -6,7 +6,7 @@ import { NavBar } from "@/components/NavBar";
 import { ToastContainer } from "@/components/Toast";
 import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import { PageLoadingSkeleton } from "@/components/Skeleton";
-import { getToken, getStoredUser, clearAuth } from "@/lib/utils";
+import { getToken, getStoredUser, clearAuth, USER_KEY } from "@/lib/utils";
 import { authApi } from "@/lib/api";
 import type { User } from "@/types";
 
@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       .me()
       .then((u) => {
         setUser(u);
-        localStorage.setItem("tennis-tracker-user", JSON.stringify(u));
+        localStorage.setItem(USER_KEY, JSON.stringify(u));
         setReady(true);
       })
       .catch(() => {

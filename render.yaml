@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: tennis-tracker-api
+    name: stringer-tracker-api
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
