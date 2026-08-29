@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { BrandLogo } from "@/components/BrandLogo";
+import { DateNav } from "@/components/DateNav";
 import { RecordCard } from "@/components/RecordCard";
 import { RecordForm } from "@/components/RecordForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { RecordListSkeleton, StatGridSkeleton } from "@/components/Skeleton";
 import { toast } from "@/components/Toast";
 import { recordsApi } from "@/lib/api";
-import { today, fmtDateShort, fmtMoney } from "@/lib/utils";
+import { today, fmtMoney } from "@/lib/utils";
 import type { Record, RecordType } from "@/types";
 import { isOtherIncome } from "@/types";
 
@@ -119,37 +120,7 @@ export default function DailyPage() {
         <p className="text-[#8A9784] text-xs mt-1">บันทึกการขึ้นเอ็นเทนนิส</p>
       </div>
 
-      <div className="mb-4">
-        <div className="flex items-center gap-[10px] mb-[10px]">
-          <span className="font-bold text-sm">วันที่</span>
-          <input
-            type="date"
-            value={selDate}
-            onChange={(e) => setSelDate(e.target.value)}
-            className="inp w-[160px] px-3 py-2 text-sm ml-auto"
-          />
-        </div>
-
-        <div className="flex gap-[6px] overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: "touch" }}>
-          <button
-            className={selDate === today() ? "chip-active" : "chip-inactive"}
-            onClick={() => setSelDate(today())}
-          >
-            วันนี้
-          </button>
-          {recentDates
-            .filter((date) => date !== today())
-            .map((date) => (
-              <button
-                key={date}
-                className={selDate === date ? "chip-active" : "chip-inactive"}
-                onClick={() => setSelDate(date)}
-              >
-                {fmtDateShort(date)}
-              </button>
-            ))}
-        </div>
-      </div>
+      <DateNav value={selDate} onChange={setSelDate} recentDates={recentDates} />
 
       {records.length > 0 && (
         <div className="grid grid-cols-2 gap-2 mb-4">

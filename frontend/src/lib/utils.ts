@@ -29,6 +29,24 @@ export const fmtDateTime = (d: string) =>
     minute: "2-digit",
   });
 
+export const WEEKDAYS_TH_SHORT = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+
+export function shiftDate(iso: string, days: number): string {
+  const d = new Date(`${iso}T12:00:00`);
+  d.setDate(d.getDate() + days);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export function toISODate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export const MONTHS_TH = [
   "มกราคม",
   "กุมภาพันธ์",

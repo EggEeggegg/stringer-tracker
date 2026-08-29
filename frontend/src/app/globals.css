@@ -104,6 +104,51 @@
     color: var(--danger);
   }
 
+  /* ── Daily date picker ─────────────────── */
+  .date-nav-btn {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px]
+           text-lg leading-none cursor-pointer touch-manipulation
+           transition-colors duration-150;
+    color: var(--court);
+    background: transparent;
+    border: none;
+  }
+
+  .date-nav-btn:active {
+    background: rgba(47, 107, 58, 0.08);
+  }
+
+  .date-nav-current {
+    @apply flex-1 min-w-0 py-1 text-center text-[14px] font-semibold cursor-pointer
+           touch-manipulation;
+    color: var(--ink);
+  }
+
+  .date-nav-current[aria-expanded="true"] {
+    color: var(--court);
+  }
+
+  .date-cal {
+    @apply mt-1 px-1 pb-1;
+  }
+
+  .cal-day {
+    @apply flex items-center justify-center rounded-full text-[12px] font-medium
+           cursor-pointer touch-manipulation;
+    height: 28px;
+    color: var(--ink);
+  }
+
+  .cal-day-today {
+    color: var(--court);
+    box-shadow: inset 0 0 0 1px var(--court);
+  }
+
+  .cal-day-selected {
+    color: #fff;
+    background: var(--court);
+  }
+
   /* ── Chips ─────────────────────────────── */
   .chip {
     @apply px-[14px] py-2 rounded-[20px] text-[13px] font-semibold
