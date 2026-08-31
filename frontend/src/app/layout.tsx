@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     title: "Stringer Tracker",
     statusBarStyle: "default",
   },
+  icons: {
+    icon: [{ url: "/stringer-tracker-removebg-192.png", type: "image/png", sizes: "192x192" }],
+  },
 };
 
 export const viewport: Viewport = {
@@ -26,7 +29,8 @@ export default function RootLayout({
     <html lang="th">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/stringer-tracker-removebg-192.png" type="image/png" sizes="192x192" />
+        <link rel="shortcut icon" href="/stringer-tracker-removebg-192.png" type="image/png" />
       </head>
       <body className="antialiased">{children}</body>
     </html>
