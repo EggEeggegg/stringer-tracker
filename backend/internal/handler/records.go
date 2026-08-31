@@ -77,6 +77,15 @@ func (h *Handler) CreateRecord(c *gin.Context) {
 		return
 	}
 
+	if input.RecordType == "grip" {
+		kind := model.NormalizeGripKind(input.Racket)
+		if kind == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "grip type must be Overgrip, Replacement, or Leather"})
+			return
+		}
+		input.Racket = kind
+	}
+
 	parsedDate, err := time.Parse("2006-01-02", input.Date)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format, expected YYYY-MM-DD"})
@@ -135,6 +144,15 @@ func (h *Handler) UpdateRecord(c *gin.Context) {
 	if msg := validateRecordInput(input.RecordType, input.Price); msg != "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
+	}
+
+	if input.RecordType == "grip" {
+		kind := model.NormalizeGripKind(input.Racket)
+		if kind == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "grip type must be Overgrip, Replacement, or Leather"})
+			return
+		}
+		input.Racket = kind
 	}
 
 	record.RecordType = input.RecordType
@@ -474,18 +492,22 @@ func (h *Handler) CopyJobsList(c *gin.Context) {
 
 		name := ""
 		if rec.RecordType == "string" || rec.RecordType == "" {
-			if rec.String2 != "" {
-				name = fmt.Sprintf("%s %s", rec.String1, rec.String2)
+			s1 := strings.TrimSpace(rec.String1)
+			s2 := strings.TrimSpace(rec.String2)
+			if s1 != "" && s2 != "" {
+				name = fmt.Sprintf("%s / %s", s1, s2)
+			} else if s1 != "" {
+				name = s1
 			} else {
-				name = rec.String1
+				name = s2
 			}
-			// Replace slashes with spaces and collapse whitespace
-			name = strings.ReplaceAll(name, "/", " ")
-			name = strings.Join(strings.Fields(name), " ")
 		} else if rec.RecordType == "sale" {
-			name = fmt.Sprintf("[ขายไม้] %s", model.RecordTypeLabel("sale"))
+			name = "NEW RACKET"
 		} else if rec.RecordType == "grip" {
-			name = fmt.Sprintf("grip %d", rec.Price)
+			name = strings.TrimSpace(rec.Racket)
+			if name == "" {
+				name = "Grip"
+			}
 		} else {
 			name = model.RecordTypeLabel(rec.RecordType)
 		}

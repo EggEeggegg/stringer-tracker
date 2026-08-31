@@ -33,6 +33,13 @@ export const RECORD_TYPE_LABELS: { [K in RecordType]: string } = {
   other: "อื่นๆ",
 };
 
+export const GRIP_KINDS = ["Overgrip", "Replacement", "Leather"] as const;
+export type GripKind = (typeof GRIP_KINDS)[number];
+
+export function isGripKind(value: string): value is GripKind {
+  return (GRIP_KINDS as readonly string[]).includes(value);
+}
+
 export function isOtherIncome(type: string): boolean {
   return type === "demo" || type === "grip" || type === "other";
 }
