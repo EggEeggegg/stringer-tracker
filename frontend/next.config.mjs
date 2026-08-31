@@ -14,7 +14,7 @@ const nextConfig = {
     return [
       {
         // HTML pages — always revalidate, never serve stale
-        source: "/((?!_next/static|_next/image|favicon.ico).*)",
+        source: "/((?!_next/static|_next/image).*)",
         headers: [
           {
             key: "Cache-Control",
