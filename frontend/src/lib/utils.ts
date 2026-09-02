@@ -108,12 +108,13 @@ export function formatJobsCopyList(records: JobRecord[]): string {
 
     let name = "";
     if (rec.record_type === "string" || !rec.record_type) {
-      name = rec.string2 ? `${rec.string1} ${rec.string2}` : rec.string1 || "";
-      name = name.replace(/\//g, " ").replace(/\s+/g, " ").trim();
+      const s1 = (rec.string1 || "").trim();
+      const s2 = (rec.string2 || "").trim();
+      name = s1 && s2 ? `${s1} / ${s2}` : s1 || s2;
     } else if (rec.record_type === "sale") {
-      name = `[ขายไม้] ${RECORD_TYPE_LABELS.sale}`;
+      name = "NEW RACKET";
     } else if (rec.record_type === "grip") {
-      name = `grip ${rec.price}`;
+      name = (rec.racket || "").trim() || "Grip";
     } else {
       name = RECORD_TYPE_LABELS[rec.record_type] ?? rec.record_type;
     }

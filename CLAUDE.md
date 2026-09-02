@@ -1,9 +1,9 @@
 # stringer-tracker — Full-Stack Project
 
 ## Tech Stack
-- **Frontend**: Next.js 14 (App Router) + TypeScript + Tailwind CSS → Deploy Vercel
-- **Backend**: Go 1.24 + Gin + GORM + pgx → Deploy Railway / Render
-- **Database**: PostgreSQL (Neon.tech) + Excelize (CSV/Excel export)
+- **Frontend**: Next.js 14 (App Router) + TypeScript + Tailwind CSS → Deploy Coolify
+- **Backend**: Go 1.24 + Gin + GORM + pgx → Deploy Coolify
+- **Database**: PostgreSQL (Coolify) + Excelize (CSV/Excel export)
 - **Auth**: JWT (golang-jwt/jwt/v5) + bcrypt (cost 12)
 
 ## โครงสร้างไฟล์
@@ -74,13 +74,14 @@ stringer-tracker/
 DATABASE_URL=postgresql://user:pass@host:5432/stringer_tracker?sslmode=require
 JWT_SECRET=strong-random-secret-at-least-32-chars
 PORT=4000
-CORS_ORIGIN=https://your-app.vercel.app
+CORS_ORIGIN=https://app.yourdomain.com
 GIN_MODE=release
 ```
 
 ### frontend/.env.local
 ```
-NEXT_PUBLIC_API_URL=https://your-api.railway.app
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 ## คำสั่งสำคัญ
@@ -154,5 +155,5 @@ bun run build && bun run start # production
 - [x] Frontend Next.js: Login, Daily, Summary (รวม filter), Admin, rate limiting
 - [x] Database schema: users + records + updated_at triggers
 - [x] stringer-tracker branding, favicon, and PWA icons
-- [ ] Deploy backend (Railway / Render)
-- [ ] Deploy frontend (Vercel)
+- [x] Deploy backend + frontend + PostgreSQL บน Coolify
+- [ ] Google Analytics 4 (ใส่ Measurement ID ใน Coolify frontend env)

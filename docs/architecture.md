@@ -5,7 +5,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                   Frontend (Next.js 14)                      │
-│                      Vercel                                   │
+│                      Coolify                                  │
 ├──────────────────────┬──────────────────────────────────────┤
 │      User App        │         Admin Dashboard               │
 │  - บันทึกรายการ         │  - รายงานรวมทุก user                  │
@@ -16,7 +16,7 @@
            ▼                          ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                  Backend API (Go + Gin)                      │
-│                    Railway / Render                           │
+│                         Coolify                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Auth                                                        │
 │    POST /api/auth/login                                      │
@@ -43,7 +43,7 @@
                   ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                   PostgreSQL Database                        │
-│                       Neon.tech                              │
+│                         Coolify                              │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  users                                                       │
@@ -77,9 +77,9 @@
 
 | Layer    | Technology                        | Hosting        |
 |----------|-----------------------------------|----------------|
-| Frontend | Next.js 14 App Router + TypeScript + Tailwind CSS | Vercel |
-| Backend  | Go 1.24 + Gin + GORM + pgx        | Railway/Render |
-| Database | PostgreSQL + Excelize (export)    | Neon.tech      |
+| Frontend | Next.js 14 App Router + TypeScript + Tailwind CSS | Coolify |
+| Backend  | Go 1.24 + Gin + GORM + pgx        | Coolify |
+| Database | PostgreSQL + Excelize (export)    | Coolify |
 | Auth     | JWT (golang-jwt/jwt/v5) + bcrypt (cost 12) | —       |
 
 ## User Flow
@@ -138,23 +138,21 @@ stringer-tracker/
 DATABASE_URL=postgresql://user:pass@host:5432/stringer_tracker?sslmode=require
 JWT_SECRET=strong-random-secret-at-least-32-chars
 PORT=4000
-CORS_ORIGIN=https://your-app.vercel.app
+CORS_ORIGIN=https://app.yourdomain.com
 GIN_MODE=release
 ```
 
 ### frontend/.env.local
 ```
-NEXT_PUBLIC_API_URL=https://your-api.railway.app
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 ## Hosting แนะนำ
 
-| Service | Plan | หมายเหตุ |
-|---------|------|---------|
-| [Neon.tech](https://neon.tech) | Free 0.5 GB | ไม่มี sleep, always on |
-| [Railway.app](https://railway.app) | Free $5/เดือน | พอสำหรับ app เล็ก |
-| [Render.com](https://render.com) | Free | sleep หลัง 15 นาที idle |
-| [Vercel](https://vercel.com) | Free | Next.js ฟรี ไม่จำกัด |
+| Service | หมายเหตุ |
+|---------|---------|
+| [Coolify](https://coolify.io) | Frontend + backend + PostgreSQL บนเครื่องตัวเอง |
 
 ## สถานะปัจจุบัน
 
@@ -164,6 +162,6 @@ NEXT_PUBLIC_API_URL=https://your-api.railway.app
 - [x] Migration 002: record type (string | sale)
 - [x] CSV/Excel export via Excelize
 - [x] Rate limiting on frontend
-- [ ] Deploy backend (Railway / Render)
-- [ ] Deploy frontend (Vercel)
+- [x] Deploy backend + frontend + PostgreSQL บน Coolify
+- [ ] Google Analytics 4
 - [ ] PDF export (Phase 3)

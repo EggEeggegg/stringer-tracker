@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -56,6 +57,16 @@ func RecordTypeLabel(recordType string) string {
 // IsOtherIncome reports whether the type rolls into the other-income summary bucket.
 func IsOtherIncome(recordType string) bool {
 	return recordType == "demo" || recordType == "grip" || recordType == "other"
+}
+
+// NormalizeGripKind returns the canonical grip label, or empty if invalid.
+func NormalizeGripKind(value string) string {
+	switch strings.TrimSpace(value) {
+	case "Overgrip", "Replacement", "Leather":
+		return strings.TrimSpace(value)
+	default:
+		return ""
+	}
 }
 
 // ─── Input types ──────────────────────────────────────────────────────────────

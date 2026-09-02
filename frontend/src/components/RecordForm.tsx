@@ -1,7 +1,7 @@
 ﻿"use client";
 
-import type { Record, RecordType } from "@/types";
-import { RECORD_TYPE_LABELS } from "@/types";
+import type { GripKind, Record, RecordType } from "@/types";
+import { GRIP_KINDS, RECORD_TYPE_LABELS, isGripKind } from "@/types";
 import { fmtDate } from "@/lib/utils";
 import { useState } from "react";
 
@@ -46,6 +46,9 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
       ? String(initial?.price ?? "")
       : "",
     salePrice: initial?.record_type === "sale" ? String(initial?.price ?? 200) : "200",
+    gripKind: (initial?.record_type === "grip" && initial?.racket && isGripKind(initial.racket)
+      ? initial.racket
+      : "Overgrip") as GripKind,
     note: initial?.note ?? "",
   });
   const [error, setError] = useState("");
@@ -94,7 +97,7 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
 
     await onSubmit({
       record_type: recordType,
-      racket: "",
+      racket: recordType === "grip" ? form.gripKind : "",
       string1: "",
       string2: "",
       price: parsedPrice,
@@ -249,20 +252,41 @@ export function RecordForm({ date, initial, onSubmit, onClose, loading }: Props)
           )}
 
           {isCustomPriceType(recordType) && (
-            <div>
-              <label className="text-xs text-[#5C6B57] mb-1 block">
-                ราคา (บาท) * — {RECORD_TYPE_LABELS[recordType]}
-              </label>
-              <input
-                className="inp"
-                type="number"
-                inputMode="numeric"
-                placeholder="0"
-                min="1"
-                value={form.customPrice}
-                onChange={(e) => setForm({ ...form, customPrice: e.target.value })}
-                autoFocus
-              />
+            <div className="flex flex-col gap-4">
+              {recordType === "grip" && (
+                <div>
+                  <label className="text-xs text-[#5C6B57] mb-1 block">ชนิด Grip *</label>
+                  <select
+                    className="inp"
+                    value={form.gripKind}
+                    onChange={(e) =>
+                      setForm({ ...form, gripKind: e.target.value as GripKind })
+                    }
+                    autoFocus
+                  >
+                    {GRIP_KINDS.map((kind) => (
+                      <option key={kind} value={kind}>
+                        {kind}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div>
+                <label className="text-xs text-[#5C6B57] mb-1 block">
+                  ราคา (บาท) * — {recordType === "grip" ? form.gripKind : RECORD_TYPE_LABELS[recordType]}
+                </label>
+                <input
+                  className="inp"
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="0"
+                  min="1"
+                  value={form.customPrice}
+                  onChange={(e) => setForm({ ...form, customPrice: e.target.value })}
+                  autoFocus={recordType !== "grip"}
+                />
+              </div>
             </div>
           )}
 

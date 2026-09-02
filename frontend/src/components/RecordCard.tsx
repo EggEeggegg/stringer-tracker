@@ -36,7 +36,9 @@ export function RecordCard({ record: r, onEdit, onDelete }: Props) {
               <>
                 <div className="flex items-center gap-[6px]">
                   <div className="font-bold text-sm truncate">
-                    {RECORD_TYPE_LABELS[r.record_type] ?? r.record_type}
+                    {r.record_type === "grip"
+                      ? r.racket || RECORD_TYPE_LABELS.grip
+                      : RECORD_TYPE_LABELS[r.record_type] ?? r.record_type}
                   </div>
                 </div>
                 <div
