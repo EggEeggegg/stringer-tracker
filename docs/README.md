@@ -8,7 +8,7 @@
 | Backend  | Coolify (Go API)   |
 | Database | Coolify PostgreSQL |
 
-อย่าตัดของเดิมบน Vercel / Render / Neon จนกว่า Coolify จะขึ้นและ login ได้จริง
+Production รันบน Coolify ทั้ง frontend, backend และ PostgreSQL
 
 ## พอร์ต
 
@@ -119,8 +119,9 @@ PORT=4000
 - Port: `3000`
 - โดเมน: `https://app.yourdomain.com`
 - Build argument: `NEXT_PUBLIC_API_URL=https://api.yourdomain.com`
+- Env / build argument: `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX`
 
-`NEXT_PUBLIC_API_URL` ถูก bake ตอน build ถ้าเปลี่ยนโดเมน API ต้องกด Deploy frontend ใหม่ ไม่พอแค่แก้ env แล้ว restart
+`NEXT_PUBLIC_API_URL` และ `NEXT_PUBLIC_GA_MEASUREMENT_ID` ถูก bake ตอน build ถ้าเปลี่ยนค่าต้องกด Deploy frontend ใหม่ ไม่พอแค่แก้ env แล้ว restart
 
 ## หลังตั้งเสร็จ
 

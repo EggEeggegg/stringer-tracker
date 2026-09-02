@@ -84,13 +84,14 @@ stringer-tracker/
 DATABASE_URL=postgresql://user:pass@host:5432/stringer_tracker?sslmode=require
 JWT_SECRET=strong-random-secret-at-least-32-chars
 PORT=4000
-CORS_ORIGIN=https://your-app.vercel.app
+CORS_ORIGIN=https://app.yourdomain.com
 GIN_MODE=release
 ```
 
 ### frontend/.env.local
 ```env
-NEXT_PUBLIC_API_URL=https://your-api.railway.app
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 ## Important Commands
@@ -189,5 +190,5 @@ bun run type-check
 - [x] Copy jobs list endpoint and summary-page button
 - [x] Create record without requiring racket name
 - [x] stringer-tracker branding, favicon, and PWA icons
-- [ ] Deploy backend (Railway / Render)
-- [ ] Deploy frontend (Vercel)
+- [x] Deploy backend + frontend + PostgreSQL on Coolify
+- [ ] Google Analytics 4 (set Measurement ID on Coolify frontend)

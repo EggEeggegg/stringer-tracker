@@ -1,4 +1,5 @@
 ﻿import type { Metadata, Viewport } from "next";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -32,7 +33,10 @@ export default function RootLayout({
         <link rel="icon" href="/stringer-tracker-removebg-192.png" type="image/png" sizes="192x192" />
         <link rel="shortcut icon" href="/stringer-tracker-removebg-192.png" type="image/png" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <GoogleAnalytics />
+      </body>
     </html>
   );
 }
