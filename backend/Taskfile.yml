@@ -26,6 +26,11 @@ tasks:
         cmds:
             - go run ./cmd/seed
 
+    reset-admin:
+        desc: Restore admin password from ADMIN_* env without wiping records
+        cmds:
+            - go run ./cmd/reset-admin
+
     tidy:
         desc: Tidy Go modules
         cmds:

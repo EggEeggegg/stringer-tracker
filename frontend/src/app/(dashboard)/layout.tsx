@@ -8,6 +8,7 @@ import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import { PageLoadingSkeleton } from "@/components/Skeleton";
 import { getToken, getStoredUser, clearAuth, USER_KEY } from "@/lib/utils";
 import { authApi } from "@/lib/api";
+import "@/lib/ensure-badge-api";
 import type { User } from "@/types";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

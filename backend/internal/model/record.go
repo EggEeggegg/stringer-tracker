@@ -115,3 +115,75 @@ type MonthSummary struct {
 	OtherCount int    `json:"other_count"`
 	OtherTotal int    `json:"other_total"`
 }
+
+// BadgeStepBaht is the first-tier income gap. Later tiers grow.
+const BadgeStepBaht = 3000
+
+// badgeLateStepBaht is the increment after the last named threshold.
+const badgeLateStepBaht = 30000
+
+// badgeThresholds is the unlocked amount at each level. Index 0 is ฿0.
+// Keep in sync with frontend/src/lib/badges.ts
+var badgeThresholds = []int{
+	0, 1000, 3000, 6000, 9000, 12000,
+	18000, 24000, 30000,
+	42000, 54000, 66000,
+	84000, 102000, 120000,
+	150000, 180000,
+}
+
+// IncomeBadge is returned by GET /api/records/badge.
+type IncomeBadge struct {
+	Month            string `json:"month"`
+	Total            int    `json:"total"`
+	Step             int    `json:"step"`
+	Level            int    `json:"level"`
+	CurrentThreshold int    `json:"current_threshold"`
+	NextThreshold    int    `json:"next_threshold"`
+	Remaining        int    `json:"remaining"`
+	Percent          int    `json:"percent"`
+}
+
+func badgeThresholdAt(level int) int {
+	if level <= 0 {
+		return 0
+	}
+	if level < len(badgeThresholds) {
+		return badgeThresholds[level]
+	}
+	last := len(badgeThresholds) - 1
+	return badgeThresholds[last] + (level-last)*badgeLateStepBaht
+}
+
+func badgeLevelFromTotal(total int) int {
+	level := 0
+	for badgeThresholdAt(level+1) <= total {
+		level++
+	}
+	return level
+}
+
+// ComputeIncomeBadge builds monthly badge progress from a total in baht.
+func ComputeIncomeBadge(month string, total int) IncomeBadge {
+	if total < 0 {
+		total = 0
+	}
+	level := badgeLevelFromTotal(total)
+	current := badgeThresholdAt(level)
+	next := badgeThresholdAt(level + 1)
+	step := next - current
+	percent := 0
+	if step > 0 {
+		percent = ((total - current) * 100) / step
+	}
+	return IncomeBadge{
+		Month:            month,
+		Total:            total,
+		Step:             step,
+		Level:            level,
+		CurrentThreshold: current,
+		NextThreshold:    next,
+		Remaining:        next - total,
+		Percent:          percent,
+	}
+}

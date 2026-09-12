@@ -354,6 +354,88 @@
     color: var(--muted);
   }
 
+  /* ── Income badges (Coursera-style) ───── */
+  .badge-card {
+    @apply rounded-[16px] border border-[rgba(47,107,58,0.12)] bg-[var(--cream-soft)] p-4 mb-4
+           shadow-[0_2px_12px_rgba(31,46,28,0.05)];
+  }
+
+  .badge-mini {
+    @apply mb-3 px-0.5;
+  }
+
+  .badge-mini-bar {
+    @apply relative mt-1.5 h-[5px] overflow-hidden rounded-full;
+    background: rgba(47, 107, 58, 0.1);
+  }
+
+  .badge-mini-fill {
+    @apply absolute inset-y-0 left-0 rounded-full;
+    transition: width 0.35s ease;
+  }
+
+  .badge-mini-toggle {
+    @apply flex w-full items-center gap-2 border-none bg-transparent px-0.5 py-1
+           text-left text-[12px] font-semibold text-[#5C6B57]
+           cursor-pointer touch-manipulation;
+  }
+
+  .badge-mini-toggle-chevron {
+    @apply ml-auto text-[11px] text-[#8A9784];
+  }
+
+  .badge-ring {
+    @apply relative shrink-0;
+  }
+
+  .badge-medal {
+    @apply absolute inset-[9px] rounded-full flex items-center justify-center;
+    box-shadow: inset 0 0 0 2px rgba(255, 252, 245, 0.28);
+  }
+
+  .badge-level {
+    @apply absolute -bottom-0.5 -right-0.5 min-w-[18px] h-[18px] px-1
+           rounded-full text-[10px] leading-[18px] text-center text-white;
+    background: var(--court-deep);
+    box-shadow: 0 0 0 2px var(--cream-soft);
+  }
+
+  .badge-bar {
+    @apply relative mt-3 h-[8px] rounded-full;
+    background: rgba(47, 107, 58, 0.1);
+  }
+
+  .badge-bar-fill {
+    @apply absolute inset-y-0 left-0 rounded-full;
+    transition: width 0.35s ease;
+  }
+
+  .badge-scale-mark {
+    @apply absolute top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full;
+    background: var(--cream-deep);
+    box-shadow: 0 0 0 2px var(--cream-soft);
+  }
+
+  .badge-scale-mark-earned {
+    background: var(--court-soft);
+  }
+
+  .badge-scale-now {
+    @apply absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full;
+    background: var(--cream-soft);
+    border: 2px solid var(--amber);
+    box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.16);
+    z-index: 1;
+  }
+
+  .badge-scale-labels {
+    @apply relative mt-1.5 h-4;
+  }
+
+  .badge-scale-label {
+    @apply absolute top-0 whitespace-nowrap;
+  }
+
   /* ── Summary highlight box ─────────────── */
   .summary-box {
     @apply rounded-[14px] p-[14px] mt-2;
@@ -408,3 +490,73 @@
 }
 
 .animate-toast { animation: toastIn 0.25s ease; }
+
+.badge-celebrate {
+  @apply fixed inset-0 z-[280] overflow-hidden;
+  background: rgba(31, 46, 28, 0.28);
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.18s ease;
+}
+
+.badge-celebrate-bit,
+.badge-celebrate-ball {
+  position: absolute;
+  top: -12px;
+  animation-name: badgeConfettiFall;
+  animation-timing-function: cubic-bezier(0.22, 0.7, 0.36, 1);
+  animation-fill-mode: forwards;
+  pointer-events: none;
+}
+
+.badge-celebrate-bit {
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.badge-celebrate-ball {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.badge-celebrate-card {
+  @apply absolute left-1/2 top-[38%] w-[min(300px,calc(100%-40px))] -translate-x-1/2
+         rounded-[20px] px-5 py-6 text-center;
+  background: var(--cream-soft);
+  border: 1px solid rgba(47, 107, 58, 0.16);
+  box-shadow: 0 16px 40px rgba(31, 46, 28, 0.2);
+  animation: badgeCelebratePop 0.55s cubic-bezier(0.22, 1.3, 0.36, 1);
+}
+
+.badge-celebrate-emoji {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 8px;
+  animation: badgeCelebrateBounce 0.7s cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+
+@keyframes badgeConfettiFall {
+  0% { transform: translate3d(0, -20px, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--drift, 12px), 110vh, 0) rotate(240deg); opacity: 0.15; }
+}
+
+@keyframes badgeCelebratePop {
+  0% { opacity: 0; transform: translate(-50%, 16px) scale(0.72); }
+  70% { transform: translate(-50%, -6px) scale(1.04); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@keyframes badgeCelebrateBounce {
+  0% { transform: scale(0.4) rotate(-18deg); }
+  55% { transform: scale(1.18) rotate(8deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-celebrate-bit,
+  .badge-celebrate-ball,
+  .badge-celebrate-card,
+  .badge-celebrate-emoji {
+    animation: fadeIn 0.2s ease;
+  }
+}
