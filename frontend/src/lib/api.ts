@@ -5,9 +5,18 @@ import type {
   Record as TRecord,
   User,
 } from "@/types";
+import { fetchIncomeBadge } from "./badge-api";
 import { getToken } from "./utils";
 
-const BASE = process.env.NEXT_PUBLIC_API_URL || "";
+export { fetchIncomeBadge };
+
+function apiBase(): string {
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host === "localhost" || host === "127.0.0.1") return "";
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "";
+}
 
 // ─── Core fetch wrapper ───────────────────────────────────────────────────────
 
@@ -23,7 +32,12 @@ async function request<T>(
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE}${path}`, { ...options, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${apiBase()}${path}`, { ...options, headers });
+  } catch {
+    throw new Error("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+  }
 
   if (res.status === 204) return null as T;
 
@@ -84,6 +98,8 @@ export const recordsApi = {
     return request<MonthSummary[]>(`/api/records/summary/monthly?${q}`);
   },
 
+  badge: (params: { month?: string } = {}) => fetchIncomeBadge(params.month),
+
   create: (body: {
     date: string;
     record_type?: "string" | "sale" | "demo" | "grip" | "other";
@@ -122,7 +138,7 @@ export const recordsApi = {
     q.set("start", start);
     q.set("end", end);
     const token = getToken();
-    const url = `${BASE}/api/records/export?${q}`;
+    const url = `${apiBase()}/api/records/export?${q}`;
     const headers: { [key: string]: string } = {
       Authorization: `Bearer ${token}`,
     };
@@ -136,6 +152,10 @@ export const recordsApi = {
     return request<{ text: string }>(`/api/records/copy-list?${q}`);
   },
 };
+
+// Fast Refresh keeps the same recordsApi object, so new methods must be
+// assigned onto it. A new object literal is discarded on HMR.
+recordsApi.badge = (params: { month?: string } = {}) => fetchIncomeBadge(params.month);
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
@@ -182,7 +202,7 @@ export const adminApi = {
     if (start) q.set("start", start);
     if (end) q.set("end", end);
     const token = getToken();
-    const url = `${BASE}/api/admin/report/export?${q}`;
+    const url = `${apiBase()}/api/admin/report/export?${q}`;
     const headers: { [key: string]: string } = {
       Authorization: `Bearer ${token}`,
     };

@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"stringer-tracker/internal/config"
@@ -12,6 +13,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
+
+func corsOrigins(origin string) []string {
+	origins := []string{origin}
+	if strings.HasPrefix(origin, "http://localhost:") {
+		origins = append(origins, strings.Replace(origin, "http://localhost:", "http://127.0.0.1:", 1))
+	} else if strings.HasPrefix(origin, "http://127.0.0.1:") {
+		origins = append(origins, strings.Replace(origin, "http://127.0.0.1:", "http://localhost:", 1))
+	}
+	return origins
+}
 
 // New builds and returns the configured Gin engine.
 func New(cfg *config.Config, db *gorm.DB) *gin.Engine {
@@ -25,7 +36,7 @@ func New(cfg *config.Config, db *gorm.DB) *gin.Engine {
 	r.Use(middleware.RateLimit(100, time.Minute))
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{cfg.CORSOrigin},
+		AllowOrigins:     corsOrigins(cfg.CORSOrigin),
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -57,6 +68,7 @@ func New(cfg *config.Config, db *gorm.DB) *gin.Engine {
 		rec.GET("", h.ListRecords)
 		rec.GET("/summary/daily", h.DailySummary)
 		rec.GET("/summary/monthly", h.MonthlySummary)
+		rec.GET("/badge", h.IncomeBadge)
 		rec.GET("/export", h.ExportRecordsExcel)
 		rec.GET("/copy-list", h.CopyJobsList)
 		rec.POST("", h.CreateRecord)

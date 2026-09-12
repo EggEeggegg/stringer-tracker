@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { recordsApi } from "@/lib/api";
 import { fmtDate, fmtMoney, today, MONTHS_TH, formatJobsCopyList, copyTextToClipboard } from "@/lib/utils";
 import { BrandLogo } from "@/components/BrandLogo";
+import { IncomeBadgeLoader } from "@/components/IncomeBadgeLoader";
 import { RecordListSkeleton } from "@/components/Skeleton";
 import { toast } from "@/components/Toast";
 import type { DaySummary, MonthSummary, Record } from "@/types";
@@ -219,6 +220,8 @@ function SummaryContent() {
         <BrandLogo size="sm" />
         <h1 className="brand-title text-xl">Stringer Tracker</h1>
       </div>
+
+      <IncomeBadgeLoader />
 
       <div
         className="flex rounded-[12px] p-1 mb-5"

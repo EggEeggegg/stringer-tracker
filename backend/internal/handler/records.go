@@ -293,6 +293,35 @@ func (h *Handler) MonthlySummary(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// GET /api/records/badge?month=YYYY-MM
+func (h *Handler) IncomeBadge(c *gin.Context) {
+	userID := c.GetString("userID")
+	month := c.Query("month")
+	if month == "" {
+		month = time.Now().In(time.FixedZone("ICT", 7*3600)).Format("2006-01")
+	}
+
+	start, err := time.Parse("2006-01", month)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid month format, expected YYYY-MM"})
+		return
+	}
+
+	startDate := start.Format("2006-01-02")
+	endDate := start.AddDate(0, 1, -1).Format("2006-01-02")
+
+	var total int
+	if err := h.db.Model(&model.Record{}).
+		Where("user_id = ? AND date BETWEEN ? AND ?", userID, startDate, endDate).
+		Select("COALESCE(SUM(price), 0)").
+		Scan(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query badge progress"})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.ComputeIncomeBadge(start.Format("2006-01"), total))
+}
+
 // GET /api/records/export?start=&end=
 func (h *Handler) ExportRecordsExcel(c *gin.Context) {
 	userID := c.GetString("userID")

@@ -64,6 +64,17 @@ export interface MonthSummary {
   other_total: number;
 }
 
+export interface IncomeBadge {
+  month: string; // YYYY-MM
+  total: number;
+  step: number;
+  level: number;
+  current_threshold: number;
+  next_threshold: number;
+  remaining: number;
+  percent: number;
+}
+
 export interface UserReport {
   user_id: string;
   name: string;

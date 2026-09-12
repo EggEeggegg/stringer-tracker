@@ -11,6 +11,15 @@ const nextConfig = {
     ];
   },
   async headers() {
+    if (process.env.NODE_ENV !== "production") {
+      return [
+        {
+          source: "/:path*",
+          headers: [{ key: "Cache-Control", value: "no-store, must-revalidate" }],
+        },
+      ];
+    }
+
     return [
       {
         // HTML pages — always revalidate, never serve stale
@@ -23,7 +32,7 @@ const nextConfig = {
         ],
       },
       {
-        // Next.js static assets already have content hashes — safe to cache forever
+        // Production chunks have content hashes — safe to cache forever
         source: "/_next/static/(.*)",
         headers: [
           {

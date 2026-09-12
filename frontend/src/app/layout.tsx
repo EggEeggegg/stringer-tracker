@@ -27,13 +27,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th">
+    <html lang="th" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <link rel="icon" href="/stringer-tracker-removebg-192.png" type="image/png" sizes="192x192" />
         <link rel="shortcut icon" href="/stringer-tracker-removebg-192.png" type="image/png" />
       </head>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         {children}
         <GoogleAnalytics />
       </body>
